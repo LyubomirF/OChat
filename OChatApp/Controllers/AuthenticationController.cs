@@ -24,21 +24,15 @@ namespace OChatApp.Controllers
     [Authorize]
     public class AuthenticationController : ControllerBase
     {
-        private OChatAppContext _dbContext;
-
-        public AuthenticationController(OChatAppContext dbContext)
-        {
-            _dbContext = dbContext;
-        }
-
         [AllowAnonymous]
         [HttpPost("get-token")]
         public async Task<IActionResult> GetToken(
             [FromBody] LoginModel loginModel,
+            [FromServices] OChatAppContext dbContext,
             [FromServices] SignInManager<OChatAppUser> signInManager,
             [FromServices] IConfiguration configuration)
         {
-            var user = await _dbContext.Users
+            var user = await dbContext.Users
                 .FirstOrDefaultAsync(u => u.Email == loginModel.Email);
 
             if (user is not null)
@@ -95,6 +89,13 @@ namespace OChatApp.Controllers
                 errors.Append(error.Description);
 
             return BadRequest(new { Result = $"Register Fail:{errors.ToString()}" });
+        }
+
+        [HttpPost("logout")]
+        public async Task<IActionResult> Logout([FromServices] SignInManager<OChatAppUser> signInManager)
+        {
+            await signInManager.SignOutAsync();
+            return Ok();
         }
     }
 }
