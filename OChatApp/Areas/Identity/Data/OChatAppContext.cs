@@ -16,12 +16,31 @@ namespace OChatApp.Data
         {
         }
 
+        public DbSet<ChatRoom> ChatRooms { get; set; }
+
+        public DbSet<Message> Messages { get; set; }
+
         protected override void OnModelCreating(ModelBuilder builder)
         {
             base.OnModelCreating(builder);
-            // Customize the ASP.NET Identity model and override the defaults if needed.
-            // For example, you can rename the ASP.NET Identity table names and more.
-            // Add your customizations after calling base.OnModelCreating(builder);
+
+            builder.Entity<ChatRoom>()
+                .HasKey(c => c.Id);
+
+            builder.Entity<Message>()
+                .HasKey(m => m.Id);
+
+            builder.Entity<ChatRoom>()
+                .HasMany<OChatAppUser>(c => c.Users)
+                .WithMany(u => u.ChatRooms);
+
+            builder.Entity<ChatRoom>()
+                .HasMany<Message>(c => c.Messages)
+                .WithOne(m => m.ChatRoom);
+
+            builder.Entity<Message>()
+                .HasOne<OChatAppUser>(m => m.From)
+                .WithMany();
         }
     }
 }

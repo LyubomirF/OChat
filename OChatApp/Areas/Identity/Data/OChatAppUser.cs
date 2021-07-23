@@ -9,5 +9,6 @@ namespace OChatApp.Areas.Identity.Data
     // Add profile data for application users by adding properties to the OChatAppUser class
     public class OChatAppUser : IdentityUser
     {
+        public ICollection<ChatRoom> ChatRooms { get; set; }
     }
 }
