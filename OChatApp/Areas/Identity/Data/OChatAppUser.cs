@@ -10,5 +10,7 @@ namespace OChatApp.Areas.Identity.Data
     public class OChatAppUser : IdentityUser
     {
         public ICollection<ChatRoom> ChatRooms { get; set; }
+
+        public ICollection<Connection> Connections { get; set; }
     }
 }

@@ -35,35 +35,17 @@ namespace OChatApp.Controllers
             var user = await dbContext.Users
                 .FirstOrDefaultAsync(u => u.Email == loginModel.Email);
 
-            if (user is not null)
-            {
-                var signInResult = await signInManager.CheckPasswordSignInAsync(user, loginModel.Password, false);
+            if (user == null)
+                return Unauthorized("User not found.");
 
-                if (signInResult.Succeeded)
-                {
-                    var tokenHandler = new JwtSecurityTokenHandler();
-                    var key = Encoding.ASCII.GetBytes(configuration.GetSection("JwtTokenKey").Value);
+            var signInResult = await signInManager.CheckPasswordSignInAsync(user, loginModel.Password, false);
 
-                    var tokenDescriptor = new SecurityTokenDescriptor
-                    {
-                        Subject = new ClaimsIdentity(new Claim[]
-                        {
-                            new Claim(ClaimTypes.Name, loginModel.Email)
-                        }),
-                        Expires = DateTime.UtcNow.AddMinutes(120),
-                        SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(key), SecurityAlgorithms.HmacSha256Signature)
-                    };
-
-                    var token = tokenHandler.CreateToken(tokenDescriptor);
-                    var tokenString = tokenHandler.WriteToken(token);
-
-                    return Ok(new { Token = tokenString });
-                }
-
+            if (!signInResult.Succeeded)
                 return Unauthorized("Sign in failed");
-            }
 
-            return Unauthorized("User not found.");
+            var jsonWebToken = CreateJSONWebToken(user, configuration);
+
+            return Ok(new { Token = jsonWebToken });
         }
 
         [AllowAnonymous]
@@ -72,23 +54,17 @@ namespace OChatApp.Controllers
             [FromBody] LoginModel loginModel,
             [FromServices] UserManager<OChatAppUser> userManager)
         {
-            var newUser = new OChatAppUser()
-            {
-                UserName = loginModel.Email,
-                Email = loginModel.Email,
-                EmailConfirmed = true
-            };
-
-            var result = await userManager.CreateAsync(newUser, loginModel.Password);
+            var result = await RegisterUser(loginModel, userManager);
 
             if (result.Succeeded)
                 return Ok(new { result = "Success" });
 
             var errors = new StringBuilder();
+
             foreach (var error in result.Errors)
                 errors.Append(error.Description);
 
-            return BadRequest(new { Result = $"Register Fail:{errors.ToString()}" });
+            return BadRequest(new { Result = $"Register Fail:{errors}" });
         }
 
         [HttpPost("logout")]
@@ -96,6 +72,40 @@ namespace OChatApp.Controllers
         {
             await signInManager.SignOutAsync();
             return Ok();
+        }
+
+        private async Task<IdentityResult> RegisterUser(LoginModel loginModel, UserManager<OChatAppUser> userManager)
+        {
+            var newUser = new OChatAppUser()
+            {
+                UserName = loginModel.Email,
+                Email = loginModel.Email,
+                EmailConfirmed = true
+            };
+
+            return await userManager.CreateAsync(newUser, loginModel.Password);
+        }
+
+        private string CreateJSONWebToken(OChatAppUser user, IConfiguration configuration)
+        {
+            var tokenHandler = new JwtSecurityTokenHandler();
+            var key = Encoding.ASCII.GetBytes(configuration.GetSection("JwtTokenKey").Value);
+
+            var tokenDescriptor = new SecurityTokenDescriptor
+            {
+                Subject = new ClaimsIdentity(new Claim[]
+                {
+                    new Claim(ClaimTypes.NameIdentifier, user.Id),
+                    new Claim(ClaimTypes.Name, user.Email)
+                }),
+                Expires = DateTime.UtcNow.AddMinutes(120),
+                SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(key), SecurityAlgorithms.HmacSha256Signature)
+            };
+
+            var token = tokenHandler.CreateToken(tokenDescriptor);
+            var tokenString = tokenHandler.WriteToken(token);
+
+            return tokenString;
         }
     }
 }

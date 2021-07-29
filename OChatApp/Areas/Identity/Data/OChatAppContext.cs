@@ -20,6 +20,7 @@ namespace OChatApp.Data
 
         public DbSet<Message> Messages { get; set; }
 
+        public DbSet<Connection> Connections { get; set; }
         protected override void OnModelCreating(ModelBuilder builder)
         {
             base.OnModelCreating(builder);
@@ -41,6 +42,11 @@ namespace OChatApp.Data
             builder.Entity<Message>()
                 .HasOne<OChatAppUser>(m => m.From)
                 .WithMany();
+        }
+
+        internal void AddAsync()
+        {
+            throw new NotImplementedException();
         }
     }
 }
