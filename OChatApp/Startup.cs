@@ -9,6 +9,8 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.IdentityModel.Tokens;
 using OChatApp.Areas.Identity.Data;
+using OChatApp.Hubs;
+using OChatApp.Services;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -26,6 +28,16 @@ namespace OChatApp
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
+            services.AddTransient<ChatService>();
+
+            services.AddSignalR();
+
+            services.AddCors(
+                c => c.AddPolicy("AllowOrigin",
+                o => o.AllowAnyMethod()
+                .AllowAnyHeader()
+                .AllowAnyOrigin()));
+
             var key = Encoding.ASCII.GetBytes(Configuration.GetSection("JwtTokenKey").Value);
 
             services.AddAuthentication(x =>
@@ -65,7 +77,7 @@ namespace OChatApp
                 configuration.RootPath = "ClientApp/build";
             });
         }
-  
+
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
         {
             if (env.IsDevelopment())
@@ -82,6 +94,7 @@ namespace OChatApp
 
             app.UseRouting();
 
+            app.UseCors("AllowOrigin");
             app.UseAuthentication();
             app.UseAuthorization();
 
@@ -90,6 +103,8 @@ namespace OChatApp
                 endpoints.MapControllerRoute(
                     name: "default",
                     pattern: "{controller}/{action=Index}/{id?}");
+
+                endpoints.MapHub<ChatHub>("/chat");
             });
 
             app.UseSpa(spa =>
