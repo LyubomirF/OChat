@@ -25,7 +25,7 @@ namespace OChatApp.Controllers
     public class AuthenticationController : ControllerBase
     {
         [AllowAnonymous]
-        [HttpPost("get-token")]
+        [HttpPost("token")]
         public async Task<IActionResult> GetToken(
             [FromBody] LoginModel loginModel,
             [FromServices] OChatAppContext dbContext,

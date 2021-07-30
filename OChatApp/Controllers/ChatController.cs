@@ -40,7 +40,6 @@ namespace OChatApp.Controllers
             return Ok();
         }
 
-        //???
         [HttpGet("chats/{userId}")]
         public async Task<IActionResult> GetChatRooms(string userId)
         {
@@ -52,7 +51,6 @@ namespace OChatApp.Controllers
             return Ok(chats);
         }
 
-        //???
         [HttpGet("history/{chatId}")]
         public async Task<IActionResult> GetChatRoomMessageHistory(string chatId)
         {

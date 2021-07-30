@@ -58,6 +58,7 @@ namespace OChatApp.Services
                 .ThenInclude(m => m.From)
                 .SingleOrDefaultAsync(c => c.Id == chatId);
 
+            //return custom exception
             if (chat == null || chat.Messages == null)
                 return null;
 
@@ -71,9 +72,7 @@ namespace OChatApp.Services
             if (user.ChatRooms == null)
                 return null;
 
-            foreach (var chat in user.ChatRooms)
-                foreach (var connection in user.Connections)
-                    await _hubContext.Groups.AddToGroupAsync(connection.Id, chat.Id);
+            await AddUserToChatGroups(user);
 
             var chats = user.ChatRooms.Select(
                 x => new ChatRoom()
@@ -120,5 +119,12 @@ namespace OChatApp.Services
                 .ThenInclude(x => x.Users)
                 .Include(u => u.Connections)
                 .SingleOrDefaultAsync(u => u.Id == userId);
+
+        private async Task AddUserToChatGroups(OChatAppUser user)
+        {
+            foreach (var chat in user.ChatRooms)
+                foreach (var connection in user.Connections)
+                    await _hubContext.Groups.AddToGroupAsync(connection.Id, chat.Id);
+        }
     }
 }

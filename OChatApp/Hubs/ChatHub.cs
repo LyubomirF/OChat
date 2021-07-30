@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.SignalR;
 using Microsoft.EntityFrameworkCore;
 using OChatApp.Areas.Identity.Data;
@@ -9,6 +10,7 @@ using OChatApp.Data;
 
 namespace OChatApp.Hubs
 {
+    [Authorize]
     public class ChatHub : Hub
     {
         private readonly OChatAppContext _dbContext;
