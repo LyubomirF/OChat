@@ -42,6 +42,23 @@ namespace OChatApp.Data
             builder.Entity<Message>()
                 .HasOne<OChatAppUser>(m => m.From)
                 .WithMany();
+
+            builder.Entity<OChatAppUser>()
+                .HasMany<OChatAppUser>(u => u.Friends)
+                .WithMany(f => f.Friends)
+                .UsingEntity<Dictionary<string, object>>(
+                    "UserFriends",
+                        x => x.HasOne<OChatAppUser>()
+                            .WithMany()
+                            .HasForeignKey("UserId")
+                            .HasConstraintName("FK_UserFriends_User_UserId")
+                            .OnDelete(DeleteBehavior.NoAction),
+                        x => x.HasOne<OChatAppUser>()
+                            .WithMany()
+                            .HasForeignKey("FriendId")
+                            .HasConstraintName("FK_UserFriends_Friend_FriendId")
+                            .OnDelete(DeleteBehavior.Cascade),
+                        x => x.HasKey(new string[] {"UserId", "FriendId"}));
         }
 
         internal void AddAsync()
