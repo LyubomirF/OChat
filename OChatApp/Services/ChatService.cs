@@ -21,34 +21,36 @@ namespace OChatApp.Services
             _dbContext = dbContext;
         }
 
-        public async Task CreateChatRoom(string userId1, string userId2, string chatName)
+        public async Task<ChatRoom> CreateChatRoom(string userId1, string userId2, string chatName)
         {
             var caller = await GetUserById(userId1);
             var otherUser = await GetUserById(userId2);
 
-            if (!DoesChatExist(caller, otherUser))
+            var commonChat = GetCommonChat(caller, otherUser);
+
+            if (commonChat != null)
+                return commonChat;
+
+            var chat = new ChatRoom()
             {
-                var chat = new ChatRoom()
-                {
-                    Name = chatName,
-                    Messages = new List<Message>(),
-                    Users = new List<OChatAppUser>()
+                Name = chatName,
+                Messages = new List<Message>(),
+                Users = new List<OChatAppUser>()
                     {
                         caller,
                         otherUser
                     }
-                };
+            };
 
-                await _dbContext.AddAsync(chat);
+            await _dbContext.AddAsync(chat);
 
-                foreach (var connection in caller.Connections)
-                    await _hubContext.Groups.AddToGroupAsync(connection.Id, chat.Id);
+            foreach (var connection in caller.Connections)
+                await _hubContext.Groups.AddToGroupAsync(connection.Id, chat.Id);
 
-                foreach (var connection in otherUser.Connections)
-                    await _hubContext.Groups.AddToGroupAsync(connection.Id, chat.Id);
+            foreach (var connection in otherUser.Connections)
+                await _hubContext.Groups.AddToGroupAsync(connection.Id, chat.Id);
 
-                await _hubContext.Clients.Group(chat.Id).SendAsync("ReceiveChat", new { chat.Id, chat.Name });
-            }
+            return chat;
         }
 
         public async Task<IEnumerable<Message>> GetChatRoomMessageHistory(string chatId)
@@ -88,10 +90,19 @@ namespace OChatApp.Services
         public async Task SendMessage(string chatId, string message)
             => await _hubContext.Clients.Group(chatId).SendAsync("ReceiveMessage", message);
 
-        private bool DoesChatExist(OChatAppUser user1, OChatAppUser user2)
+        public async Task<ChatRoom> GetChat(string chatId)
+        {
+           var chat = await _dbContext.ChatRooms
+                .Include(c => c.Users)
+                .SingleOrDefaultAsync(c => c.Id == chatId);
+
+            return chat;
+        }
+
+        private ChatRoom GetCommonChat(OChatAppUser user1, OChatAppUser user2)
         {
             if (user1.ChatRooms == null || user2.ChatRooms == null)
-                return false;
+                return null;
 
             var hashset = new HashSet<string>();
             var list = new List<ChatRoom>();
@@ -107,10 +118,10 @@ namespace OChatApp.Services
                 .Where(c => c.Users.Count == 2)
                 .SingleOrDefault();
 
-            if (commonChat != null)
-                return true;
+            if (commonChat == null)
+                return null;
 
-            return false;
+            return commonChat;
         }
 
         private async Task<OChatAppUser> GetUserById(string userId)
