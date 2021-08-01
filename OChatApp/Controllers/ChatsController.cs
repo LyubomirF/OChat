@@ -13,34 +13,32 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Security.Claims;
 using System.Threading.Tasks;
+using OChatApp;
 
 namespace OChatApp.Controllers
 {
-    [Route("api")]
+    using static ChatRoutes;
+
+
+    [Route("[controller]")]
     [ApiController]
     [Authorize]
-    public class ChatController : ControllerBase
+    public class ChatsController : ControllerBase
     {
         private readonly ChatService _chat;
-        public ChatController(ChatService chat)
+        public ChatsController(ChatService chat)
         {
             _chat = chat;
         }
 
-        //api design
-        // POST api/chat/new pars: userId, chatName
-        // GET api/history/{chatId} pars: chatId
-        // POST api/chat/message/ pars: chatId, message
-        // GET api/chat/chats/ pars: userId
-
-        [HttpPost("chat/new")]
+        [HttpPost(Name = nameof(CreateChat))]
         public async Task<IActionResult> CreateChat([FromBody] CreateChatWithModel model)
         {
-            await _chat.CreateChatRoom(User.FindFirst(ClaimTypes.NameIdentifier).Value, model.UserId, model.ChatName);
-            return Ok();
+            var chat = await _chat.CreateChatRoom(User.FindFirst(ClaimTypes.NameIdentifier).Value, model.UserId, model.ChatName);
+            return CreatedAtRoute(nameof(GetChat), new { chat.Id }, null);
         }
 
-        [HttpGet("chats/{userId}")]
+        [HttpGet(USER, Name = nameof(GetChatRooms))]
         public async Task<IActionResult> GetChatRooms(string userId)
         {
             var chats = await _chat.GetChatRooms(userId);
@@ -51,7 +49,7 @@ namespace OChatApp.Controllers
             return Ok(chats);
         }
 
-        [HttpGet("history/{chatId}")]
+        [HttpGet(HISTORY, Name = nameof(GetChatRoomMessageHistory))]
         public async Task<IActionResult> GetChatRoomMessageHistory(string chatId)
         {
             var messages = await _chat.GetChatRoomMessageHistory(chatId);
@@ -59,11 +57,18 @@ namespace OChatApp.Controllers
             return Ok(messages);
         }
 
-        [HttpPost("chat/message")]
+        [HttpPost(MESSAGE, Name = nameof(SendMessage))]
         public async Task<IActionResult> SendMessage([FromBody] SendMessageModel model)
         {
             await _chat.SendMessage(model.ChatId, model.Message);
             return Ok();
+        }
+
+        [HttpGet(CHAT, Name = nameof(GetChat))]
+        public async Task<IActionResult> GetChat(string chatId)
+        {
+            var users = await _chat.GetChat(chatId);
+            return Ok(users);
         }
     }
 }
