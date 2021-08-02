@@ -21,6 +21,9 @@ namespace OChatApp.Data
         public DbSet<Message> Messages { get; set; }
 
         public DbSet<Connection> Connections { get; set; }
+
+        public DbSet<FriendRequest> FriendRequests { get; set; }
+
         protected override void OnModelCreating(ModelBuilder builder)
         {
             base.OnModelCreating(builder);
@@ -59,6 +62,12 @@ namespace OChatApp.Data
                             .HasConstraintName("FK_UserFriends_Friend_FriendId")
                             .OnDelete(DeleteBehavior.Cascade),
                         x => x.HasKey(new string[] {"UserId", "FriendId"}));
+
+
+            builder.Entity<OChatAppUser>()
+                .HasMany<FriendRequest>(u => u.FriendRequests)
+                .WithOne(r => r.FromUser);
+
         }
 
         internal void AddAsync()

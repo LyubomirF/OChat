@@ -6,7 +6,6 @@ using Microsoft.AspNetCore.Identity;
 
 namespace OChatApp.Areas.Identity.Data
 {
-    // Add profile data for application users by adding properties to the OChatAppUser class
     public class OChatAppUser : IdentityUser
     {
         public ICollection<ChatRoom> ChatRooms { get; set; }
@@ -14,5 +13,7 @@ namespace OChatApp.Areas.Identity.Data
         public ICollection<Connection> Connections { get; set; }
 
         public ICollection<OChatAppUser> Friends { get; set; }
+
+        public ICollection<FriendRequest> FriendRequests { get; set; }
     }
 }

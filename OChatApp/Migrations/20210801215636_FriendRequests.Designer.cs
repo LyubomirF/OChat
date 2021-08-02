@@ -3,15 +3,17 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using OChatApp.Data;
 
 namespace OChatApp.Migrations
 {
     [DbContext(typeof(OChatAppContext))]
-    partial class OChatAppContextModelSnapshot : ModelSnapshot
+    [Migration("20210801215636_FriendRequests")]
+    partial class FriendRequests
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
