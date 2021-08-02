@@ -45,7 +45,7 @@ namespace OChatApp.Controllers
 
             var jsonWebToken = CreateJSONWebToken(user, configuration);
 
-            return Ok(new { Token = jsonWebToken });
+            return Ok(new { Token = jsonWebToken, UserId = user.Id, UserName = user.UserName});
         }
 
         [AllowAnonymous]

@@ -12,10 +12,10 @@ namespace OChatApp.Services
 {
     public class ChatService
     {
-        private readonly IHubContext<ChatHub> _hubContext;
+        private readonly IHubContext<ChatHub, IClient> _hubContext;
         private readonly OChatAppContext _dbContext;
 
-        public ChatService(IHubContext<ChatHub> hubContext, OChatAppContext dbContext)
+        public ChatService(IHubContext<ChatHub, IClient> hubContext, OChatAppContext dbContext)
         {
             _hubContext = hubContext;
             _dbContext = dbContext;
@@ -88,7 +88,7 @@ namespace OChatApp.Services
         }
 
         public async Task SendMessage(string chatId, string message)
-            => await _hubContext.Clients.Group(chatId).SendAsync("ReceiveMessage", message);
+            => await _hubContext.Clients.Group(chatId).ReceiveMessage(message);
 
         public async Task<ChatRoom> GetChat(string chatId)
         {

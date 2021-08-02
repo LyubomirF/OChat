@@ -34,7 +34,7 @@ namespace OChatApp.Controllers
         [HttpPost(Name = nameof(CreateChat))]
         public async Task<IActionResult> CreateChat([FromBody] CreateChatWithModel model)
         {
-            var chat = await _chat.CreateChatRoom(User.FindFirst(ClaimTypes.NameIdentifier).Value, model.UserId, model.ChatName);
+            var chat = await _chat.CreateChatRoom(model.InitiatorId, model.TargetId, model.ChatName);
             return CreatedAtRoute(nameof(GetChat), new { chat.Id }, null);
         }
 

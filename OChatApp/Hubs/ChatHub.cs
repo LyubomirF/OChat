@@ -11,7 +11,7 @@ using OChatApp.Data;
 namespace OChatApp.Hubs
 {
     [Authorize]
-    public class ChatHub : Hub
+    public class ChatHub : Hub<IClient>
     {
         private readonly OChatAppContext _dbContext;
 
@@ -20,10 +20,10 @@ namespace OChatApp.Hubs
             _dbContext = dbContext;
         }
 
-        public async Task SendMessage(string message)
-        {
-            await Clients.All.SendAsync("ReceiveMessage", message);
-        }
+        //public async Task SendMessage(string message)
+        //{
+        //    await Clients.All.SendAsync("ReceiveMessage", message);
+        //}
 
         public override Task OnConnectedAsync()
         {
