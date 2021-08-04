@@ -8,10 +8,13 @@ using System.Linq;
 using System.Threading.Tasks;
 using OChatApp.Areas.Identity.Data;
 using OChatApp.Services;
+using OChatApp;
 
 namespace OChatApp.Controllers
 {
-    [Route("api/[controller]")]
+    using static UsersRoutes;
+
+    [Route(USERS)]
     [ApiController]
     public class UsersController : ControllerBase
     {
@@ -22,7 +25,7 @@ namespace OChatApp.Controllers
             _userService = userService;
         }
 
-        [HttpGet]
+        [HttpGet(FRIENDS, Name = nameof(GetFriends))]
         public async Task<IActionResult> GetFriends(string userId)
         {
             var userFriends = await _userService.GetUserFriends(userId); 
@@ -30,7 +33,7 @@ namespace OChatApp.Controllers
             return Ok(userFriends);
         }
 
-        [HttpPost]
+        [HttpPost(REQUEST, Name = nameof(SendFriendRequest))]
         public async Task<IActionResult> SendFriendRequest(string userId, string targetUserId)
         {
             await _userService.SendFriendRequest(userId, targetUserId);
@@ -38,7 +41,7 @@ namespace OChatApp.Controllers
             return Ok();
         }
 
-        [HttpPost]
+        [HttpPost(ACCEPT, Name = nameof(AcceptFriendRequest))]
         public async Task<IActionResult> AcceptFriendRequest(string userId, string requestId)
         {
             await _userService.AcceptFriendRequest(userId, requestId);
@@ -46,7 +49,7 @@ namespace OChatApp.Controllers
             return Ok();
         }
 
-        [HttpPost]
+        [HttpPost(REJECT, Name = nameof(RejectFriendRequest))]
         public async Task<IActionResult> RejectFriendRequest(string userId, string requestId)
         {
             await _userService.RejectFriendRequest(userId, requestId);
@@ -54,9 +57,10 @@ namespace OChatApp.Controllers
             return Ok();
         }
         
-        public async Task<IActionResult> RemoveFriend(string userId, string targetUserId)
+        [HttpPost(REMOVE, Name = nameof(RemoveFriend))]
+        public async Task<IActionResult> RemoveFriend(string userId, string friendId)
         {
-            await _userService.RemoveFriend(userId, targetUserId);
+            await _userService.RemoveFriend(userId, friendId);
 
             return Ok();
         }
