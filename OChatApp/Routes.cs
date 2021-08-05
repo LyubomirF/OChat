@@ -16,7 +16,6 @@ namespace OChatApp
         public const string USER = "{userId}";
 
         public const string CHAT = "{chatId}";
-
     }
 
     public static class UsersRoutes
@@ -34,7 +33,17 @@ namespace OChatApp
         public const string REJECT = "{userId}/requests/{requestId}/reject";
 
         public const string REMOVE = "{userId}/friends/{friendId}/remove";
+    }
 
+    public static class AuthenticationRoutes
+    {
+        public const string AUTHENTICATION = "auth";
+
+        public const string TOKEN = "token";
+
+        public const string REGISTER = "register";
+
+        public const string LOGOUT = "logout";
     }
 
 }

@@ -9,13 +9,16 @@ using System.Threading.Tasks;
 using OChatApp.Areas.Identity.Data;
 using OChatApp.Services;
 using OChatApp;
+using Microsoft.AspNetCore.Authorization;
 
 namespace OChatApp.Controllers
 {
     using static UsersRoutes;
+    using static Services.UserResponses;
 
     [Route(USERS)]
     [ApiController]
+    [Authorize]
     public class UsersController : ControllerBase
     {
         private readonly UserService _userService;
@@ -70,7 +73,7 @@ namespace OChatApp.Controllers
             var requests = await _userService.GetPendingRequests(userId);
 
             if (requests == null)
-                return BadRequest("User has no friend requests.");
+                return BadRequest(USER_HAS_NO_REQUESTS);
 
             return Ok(requests);
         }

@@ -14,18 +14,21 @@ using System.Linq;
 using System.Security.Claims;
 using System.Text;
 using System.Threading.Tasks;
-
-// For more information on enabling Web API for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
+using OChatApp;
 
 namespace OChatApp.Controllers
 {
-    [Route("api/auth")]
+    using static AuthenticationRoutes;
+    using static Services.AuthenticationResponses;
+
+
+    [Route(AUTHENTICATION)]
     [ApiController]
     [Authorize]
     public class AuthenticationController : ControllerBase
     {
         [AllowAnonymous]
-        [HttpPost("token")]
+        [HttpPost(AUTHENTICATION, Name = nameof(GetToken))]
         public async Task<IActionResult> GetToken(
             [FromBody] LoginModel loginModel,
             [FromServices] OChatAppContext dbContext,
@@ -36,12 +39,12 @@ namespace OChatApp.Controllers
                 .FirstOrDefaultAsync(u => u.Email == loginModel.Email);
 
             if (user == null)
-                return Unauthorized("User not found.");
+                return Unauthorized(USER_NOT_FOUND);
 
             var signInResult = await signInManager.CheckPasswordSignInAsync(user, loginModel.Password, false);
 
             if (!signInResult.Succeeded)
-                return Unauthorized("Sign in failed");
+                return Unauthorized(SIGN_IN_FAILED);
 
             var jsonWebToken = CreateJSONWebToken(user, configuration);
 
@@ -49,7 +52,7 @@ namespace OChatApp.Controllers
         }
 
         [AllowAnonymous]
-        [HttpPost("register")]
+        [HttpPost(REGISTER, Name = nameof(Register))]
         public async Task<IActionResult> Register(
             [FromBody] LoginModel loginModel,
             [FromServices] UserManager<OChatAppUser> userManager)
@@ -57,7 +60,7 @@ namespace OChatApp.Controllers
             var result = await RegisterUser(loginModel, userManager);
 
             if (result.Succeeded)
-                return Ok(new { result = "Success" });
+                return Ok();
 
             var errors = new StringBuilder();
 
@@ -67,7 +70,7 @@ namespace OChatApp.Controllers
             return BadRequest(new { Result = $"Register Fail:{errors}" });
         }
 
-        [HttpPost("logout")]
+        [HttpPost(LOGOUT, Name = nameof(Logout))]
         public async Task<IActionResult> Logout([FromServices] SignInManager<OChatAppUser> signInManager)
         {
             await signInManager.SignOutAsync();

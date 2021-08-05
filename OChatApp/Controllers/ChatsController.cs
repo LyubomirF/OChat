@@ -18,9 +18,9 @@ using OChatApp;
 namespace OChatApp.Controllers
 {
     using static ChatRoutes;
+    using static Services.ChatResponses;
 
-
-    [Route("[controller]")]
+    [Route(CHATS)]
     [ApiController]
     [Authorize]
     public class ChatsController : ControllerBase
@@ -44,7 +44,7 @@ namespace OChatApp.Controllers
             var chats = await _chat.GetChatRooms(userId);
 
             if(chats == null)
-                return Ok(new { result = "User has no chats." });
+                return Ok(USER_HAS_NO_CHATS);
 
             return Ok(chats);
         }
