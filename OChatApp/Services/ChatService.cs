@@ -3,6 +3,7 @@ using Microsoft.EntityFrameworkCore;
 using OChatApp.Areas.Identity.Data;
 using OChatApp.Data;
 using OChatApp.Hubs;
+using OChatApp.Models.QueryParameters;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -53,18 +54,25 @@ namespace OChatApp.Services
             return chat;
         }
 
-        public async Task<IEnumerable<Message>> GetChatRoomMessageHistory(string chatId)
+        public async Task<IEnumerable<Message>> GetChatRoomMessageHistory(string chatId, QueryStringParams chatQueryParams)
         {
             var chat = await _dbContext.ChatRooms
                 .Include(c => c.Messages)
                 .ThenInclude(m => m.From)
                 .SingleOrDefaultAsync(c => c.Id == chatId);
 
+            var messages = chat.Messages
+                .OrderBy(m => m.SentOn.Date)
+                .ThenBy(m => m.SentOn.TimeOfDay)
+                .Skip((chatQueryParams.Page - 1) * chatQueryParams.PageSize)
+                .Take(chatQueryParams.PageSize)
+                .ToList();
+
             //return custom exception
-            if (chat == null || chat.Messages == null)
+            if (messages == null || messages == null)
                 return null;
 
-            return chat.Messages;
+            return messages;
         }
 
         public async Task<IEnumerable<ChatRoom>> GetChatRooms(string userId)

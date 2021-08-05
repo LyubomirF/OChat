@@ -14,6 +14,7 @@ using System.Linq;
 using System.Security.Claims;
 using System.Threading.Tasks;
 using OChatApp;
+using OChatApp.Models.QueryParameters;
 
 namespace OChatApp.Controllers
 {
@@ -50,7 +51,7 @@ namespace OChatApp.Controllers
         }
 
         [HttpGet(HISTORY, Name = nameof(GetChatRoomMessageHistory))]
-        public async Task<IActionResult> GetChatRoomMessageHistory(string chatId)
+        public async Task<IActionResult> GetChatRoomMessageHistory(string chatId, [FromQuery] QueryStringParams chatQueryParams)
         {
             var messages = await _chat.GetChatRoomMessageHistory(chatId);
 
