@@ -1,13 +1,14 @@
 ﻿using Microsoft.AspNetCore.SignalR;
 using Microsoft.EntityFrameworkCore;
-using OChatApp.Areas.Identity.Data;
-using OChatApp.Data;
-using OChatApp.Hubs;
-using OChatApp.Models.QueryParameters;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using OChatApp.Areas.Identity.Data;
+using OChatApp.Data;
+using OChatApp.Hubs;
+using OChatApp.Models.QueryParameters;
+using OChatApp.Services.Exceptions;
 
 namespace OChatApp.Services
 {
@@ -22,12 +23,19 @@ namespace OChatApp.Services
             _dbContext = dbContext;
         }
 
-        public async Task<ChatRoom> CreateChatRoom(string userId1, string userId2, string chatName)
+        public async Task<ChatRoom> CreateChatRoom(string initiatorId, string targetId, string chatName)
         {
-            var caller = await GetUserById(userId1);
-            var otherUser = await GetUserById(userId2);
+            var initiator = await GetUserById(initiatorId);
 
-            var commonChat = GetCommonChat(caller, otherUser);
+            if (initiator == null)
+                throw new NotFoundException("Initiator not found.");
+
+            var target = await GetUserById(targetId);
+
+            if (target == null)
+                throw new NotFoundException("Target user not found.");
+
+            var commonChat = GetCommonChat(initiator, target);
 
             if (commonChat != null)
                 return commonChat;
@@ -38,17 +46,17 @@ namespace OChatApp.Services
                 Messages = new List<Message>(),
                 Users = new List<OChatAppUser>()
                     {
-                        caller,
-                        otherUser
+                        initiator,
+                        target
                     }
             };
 
             await _dbContext.AddAsync(chat);
 
-            foreach (var connection in caller.Connections)
+            foreach (var connection in initiator.Connections)
                 await _hubContext.Groups.AddToGroupAsync(connection.Id, chat.Id);
 
-            foreach (var connection in otherUser.Connections)
+            foreach (var connection in target.Connections)
                 await _hubContext.Groups.AddToGroupAsync(connection.Id, chat.Id);
 
             return chat;
@@ -61,6 +69,9 @@ namespace OChatApp.Services
                 .ThenInclude(m => m.From)
                 .SingleOrDefaultAsync(c => c.Id == chatId);
 
+            if (chat == null)
+                throw new NotFoundException("Chat not found.");
+
             var messages = chat.Messages
                 .OrderBy(m => m.SentOn.Date)
                 .ThenBy(m => m.SentOn.TimeOfDay)
@@ -68,16 +79,15 @@ namespace OChatApp.Services
                 .Take(chatQueryParams.PageSize)
                 .ToList();
 
-            //return custom exception
-            if (messages == null || messages == null)
-                return null;
-
             return messages;
         }
 
         public async Task<IEnumerable<ChatRoom>> GetChatRooms(string userId)
         {
             var user = await GetUserById(userId);
+
+            if (user == null)
+                throw new NotFoundException("User not found.");
 
             if (user.ChatRooms == null)
                 return null;
@@ -103,6 +113,9 @@ namespace OChatApp.Services
            var chat = await _dbContext.ChatRooms
                 .Include(c => c.Users)
                 .SingleOrDefaultAsync(c => c.Id == chatId);
+
+            if (chat == null)
+                throw new NotFoundException("Chat not found.");
 
             return chat;
         }

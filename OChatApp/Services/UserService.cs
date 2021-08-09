@@ -5,6 +5,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using OChatApp.Services.Exceptions;
 
 namespace OChatApp.Services
 {
@@ -23,6 +24,9 @@ namespace OChatApp.Services
                 .Include(u => u.Friends)
                 .SingleOrDefaultAsync(u => u.Id == userId);
 
+            if (user == null)
+                throw new NotFoundException("User not found.");
+
             if (user.Friends == null || user.Friends.Count == 0)
                 return null;
 
@@ -34,12 +38,15 @@ namespace OChatApp.Services
             var user = await _dbContext.Users
                 .SingleOrDefaultAsync(u => u.Id == userId);
 
+            if (user == null)
+                throw new NotFoundException("User not found.");
+
             var targetUser = await _dbContext.Users
                 .Include(u => u.FriendRequests)
                 .SingleOrDefaultAsync(u => u.Id == targetUserId);
 
-            if (user == null || targetUser == null)
-                return;
+            if (targetUser == null)
+                throw new NotFoundException("Target user not found.");
 
             if (targetUser.FriendRequests == null)
                 targetUser.FriendRequests = new List<FriendRequest>();
@@ -61,8 +68,14 @@ namespace OChatApp.Services
                     .ThenInclude(r => r.FromUser)
                     .SingleOrDefaultAsync(u => u.Id == userId);
 
+            if (user == null)
+                throw new NotFoundException("User not found.");
+
             var request = user.FriendRequests
                 .SingleOrDefault(r => r.Id == requestId);
+
+            if (request == null)
+                throw new NotFoundException("Request not found.");
 
             var otherUser = await _dbContext.Users
                 .SingleOrDefaultAsync(u => u.Id == request.FromUser.Id);
@@ -82,7 +95,14 @@ namespace OChatApp.Services
                 .ThenInclude(r => r.FromUser)
                 .SingleOrDefaultAsync(u => u.Id == userId);
 
-            var request = user.FriendRequests.SingleOrDefault(r => r.Id == requestId);
+            if (user == null)
+                throw new NotFoundException("User not found.");
+
+            var request = user.FriendRequests
+                .SingleOrDefault(r => r.Id == requestId);
+
+            if (request == null)
+                throw new NotFoundException("Request not found.");
 
             request.Status = RequestStatus.Rejected;
 
@@ -96,8 +116,14 @@ namespace OChatApp.Services
                 .Include(u => u.Friends)
                 .SingleOrDefaultAsync(u => u.Id == userId);
 
+            if (user == null)
+                throw new NotFoundException("User not found.");
+
             var targetUser = await _dbContext.Users
                 .SingleOrDefaultAsync(u => u.Id == targetUserId);
+
+            if (targetUser == null)
+                throw new NotFoundException("Target user not found.");
 
             user.Friends.Remove(targetUser);
 
@@ -110,6 +136,9 @@ namespace OChatApp.Services
                 .Include(u => u.FriendRequests)
                 .ThenInclude(r => r.FromUser)
                 .SingleOrDefaultAsync(u => u.Id == userId);
+
+            if (user == null)
+                throw new NotFoundException("User not found.");
 
             var requests = user.FriendRequests
                 .Where(r => r.Status == RequestStatus.Pending)

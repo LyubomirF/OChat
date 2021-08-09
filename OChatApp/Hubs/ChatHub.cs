@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.SignalR;
 using Microsoft.EntityFrameworkCore;
 using OChatApp.Areas.Identity.Data;
 using OChatApp.Data;
+using OChatApp.Services.Exceptions;
 
 namespace OChatApp.Hubs
 {
@@ -27,6 +28,9 @@ namespace OChatApp.Hubs
 
         public override Task OnConnectedAsync()
         {
+            if (Context.UserIdentifier is null)
+                throw new NotFoundException("No logged user found.");
+
             var callerConnectionId = Context.ConnectionId;
 
             var user = _dbContext.Users

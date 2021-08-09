@@ -53,7 +53,7 @@ namespace OChatApp.Controllers
         [HttpGet(HISTORY, Name = nameof(GetChatRoomMessageHistory))]
         public async Task<IActionResult> GetChatRoomMessageHistory(string chatId, [FromQuery] QueryStringParams chatQueryParams)
         {
-            var messages = await _chat.GetChatRoomMessageHistory(chatId);
+            var messages = await _chat.GetChatRoomMessageHistory(chatId, chatQueryParams);
 
             return Ok(messages);
         }

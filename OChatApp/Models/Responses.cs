@@ -22,4 +22,10 @@ namespace OChatApp.Services
     {
         public const string USER_HAS_NO_REQUESTS = "User has no friend requests.";
     }
+
+    public class ErrorResponse
+    {
+        public int Status { get; set; }
+        public string Description { get; set; }
+    }
 }
