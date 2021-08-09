@@ -37,49 +37,7 @@ namespace OChatApp
                 .AllowAnyHeader()
                 .AllowAnyOrigin()));
 
-            var key = Encoding.ASCII.GetBytes(Configuration.GetSection("JwtTokenKey").Value);
-
-            services.AddAuthentication(x =>
-            {
-                x.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
-                x.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
-            })
-            .AddJwtBearer(x =>
-            {
-                x.Events = new JwtBearerEvents
-                {
-                    OnMessageReceived = context =>
-                    {
-                        var accessToken = context.Request.Query["access_token"];
-
-                        var path = context.HttpContext.Request.Path;
-                        if (!string.IsNullOrEmpty(accessToken) &&
-                            (path.StartsWithSegments("/chat")))
-                        {
-                            context.Token = accessToken;
-                        }
-                        return Task.CompletedTask;
-                    },
-                    OnTokenValidated = context =>
-                    {
-                        var userManager = context.HttpContext.RequestServices.GetRequiredService<UserManager<OChatAppUser>>();
-                        var user = userManager.GetUserAsync(context.HttpContext.User);
-
-                        if (user == null)
-                            context.Fail("Unauthorized");
-                        return Task.CompletedTask;
-                    }
-                };
-                x.RequireHttpsMetadata = false;
-                x.SaveToken = true;
-                x.TokenValidationParameters = new TokenValidationParameters
-                {
-                    ValidateIssuerSigningKey = true,
-                    IssuerSigningKey = new SymmetricSecurityKey(key),
-                    ValidateIssuer = false,
-                    ValidateAudience = false
-                };
-            });
+            services.AddJsonWebToken(Configuration);
 
             services.AddControllersWithViews();
 
