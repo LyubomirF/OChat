@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.SignalR;
 using Microsoft.EntityFrameworkCore;
 using OChatApp.Areas.Identity.Data;
 using OChatApp.Data;
+using OChatApp.Repositories;
 using OChatApp.Services.Exceptions;
 
 namespace OChatApp.Hubs
@@ -14,12 +15,10 @@ namespace OChatApp.Hubs
     [Authorize]
     public class ChatHub : Hub<IClient>
     {
-        private readonly OChatAppContext _dbContext;
+        private readonly IUserRepository _userRepository;
 
-        public ChatHub(OChatAppContext dbContext)
-        {
-            _dbContext = dbContext;
-        }
+        public ChatHub(IUserRepository userRepository)
+            => _userRepository = userRepository;
 
         //public async Task SendMessage(string message)
         //{
@@ -33,35 +32,36 @@ namespace OChatApp.Hubs
 
             var callerConnectionId = Context.ConnectionId;
 
-            var user = _dbContext.Users
-                .Include(u => u.Connections)
-                .SingleOrDefault(x => x.Id == Context.UserIdentifier);
+            var user = _userRepository
+                .GetUserWithConnections(Context.UserIdentifier);
+
+            var newUserConnection = new Connection()
+            {
+                Id = callerConnectionId,
+                Connected = true
+            };
 
             if (user.Connections == null)
                 user.Connections = new List<Connection>();
 
-            user.Connections.Add(new Connection()
-            {
-                Id = callerConnectionId,
-                Connected = true
-            });
+            user.Connections.Add(newUserConnection);
 
-            _dbContext.SaveChanges();
+            _userRepository.Update(user);
 
             return base.OnConnectedAsync();
         }
 
         public override Task OnDisconnectedAsync(Exception exception)
         {
-            var user = _dbContext.Users
-                .Include(u => u.Connections)
-                .SingleOrDefault(x => x.Id == Context.UserIdentifier);
+            var user = _userRepository
+                .GetUserWithConnections(Context.UserIdentifier);
 
-            var userConnection = _dbContext.Connections.Find(Context.ConnectionId);
+            var userConnection = user.Connections
+                .SingleOrDefault(c => c.Id == Context.ConnectionId);
 
             user.Connections.Remove(userConnection);
 
-            _dbContext.SaveChanges();
+            _userRepository.Update(user);
 
             return base.OnDisconnectedAsync(exception);
         }

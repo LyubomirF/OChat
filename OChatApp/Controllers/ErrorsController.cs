@@ -22,6 +22,8 @@ namespace OChatApp.Controllers
 
             if (exception is NotFoundException)
                 return NotFound(new ErrorResponse() { Status = 404, Description = exception.Message });
+            if (exception is EmptyCollectionException)
+                return BadRequest(new ErrorResponse() { Status = 400, Description = exception.Message });
 
             return StatusCode(500);
         }

@@ -18,7 +18,6 @@ namespace OChatApp.Controllers
 
     [Route(USERS)]
     [ApiController]
-    [Authorize]
     public class UsersController : ControllerBase
     {
         private readonly UserService _userService;
@@ -31,7 +30,7 @@ namespace OChatApp.Controllers
         [HttpGet(FRIENDS, Name = nameof(GetFriends))]
         public async Task<IActionResult> GetFriends(string userId)
         {
-            var userFriends = await _userService.GetUserFriends(userId); 
+            var userFriends = await _userService.GetUserFriends(userId);
 
             return Ok(userFriends);
         }
@@ -59,7 +58,7 @@ namespace OChatApp.Controllers
 
             return Ok();
         }
-        
+
         [HttpPost(REMOVE, Name = nameof(RemoveFriend))]
         public async Task<IActionResult> RemoveFriend(string userId, string friendId)
         {

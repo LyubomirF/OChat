@@ -10,6 +10,7 @@ using Microsoft.Extensions.Hosting;
 using Microsoft.IdentityModel.Tokens;
 using OChatApp.Areas.Identity.Data;
 using OChatApp.Hubs;
+using OChatApp.Repositories;
 using OChatApp.Services;
 using System.Text;
 using System.Threading.Tasks;
@@ -27,7 +28,8 @@ namespace OChatApp
 
         public void ConfigureServices(IServiceCollection services)
         {
-            services.AddTransient<ChatService>();
+            services.AddTransient<IUserRepository, UserRepository>();
+            services.AddTransient<IChatRepository, ChatRepository>();
 
             services.AddSignalR();
 
@@ -74,16 +76,6 @@ namespace OChatApp
                     pattern: "{controller}/{action=Index}/{id?}");
 
                 endpoints.MapHub<ChatHub>("/chat");
-            });
-
-            app.UseSpa(spa =>
-            {
-                spa.Options.SourcePath = "ClientApp";
-
-                if (env.IsDevelopment())
-                {
-                    spa.UseReactDevelopmentServer(npmScript: "start");
-                }
             });
         }
     }
