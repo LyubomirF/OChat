@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using OChatApp.Models;
+using OChatApp.Repositories.Exceptions;
 using OChatApp.Services;
 using OChatApp.Services.Exceptions;
 using System;
@@ -23,6 +24,8 @@ namespace OChatApp.Controllers
             if (exception is NotFoundException)
                 return NotFound(new ErrorResponse() { Status = 404, Description = exception.Message });
             if (exception is EmptyCollectionException)
+                return BadRequest(new ErrorResponse() { Status = 400, Description = exception.Message });
+            if (exception is FriendRequestException)
                 return BadRequest(new ErrorResponse() { Status = 400, Description = exception.Message });
 
             return StatusCode(500);

@@ -8,9 +8,10 @@ using System.Threading.Tasks;
 using OChatApp.Services.Exceptions;
 using OChatApp.Repositories;
 
-
 namespace OChatApp.Services
 {
+    using static ExceptionMessages;
+
     public class UserService
     {
         private readonly IUserRepository _userRepository;
@@ -22,10 +23,7 @@ namespace OChatApp.Services
 
         public async Task<IEnumerable<OChatAppUser>> GetUserFriends(string userId)
         {
-            var user = await _userRepository.GetUserWithFriendsAsync(userId);
-
-            if (user == null)
-                throw new NotFoundException("User not found.");
+            var user = await _userRepository.GetUserWithFriendsAsync(userId, USER_NOT_FOUND);
 
             if (user.Friends == null || user.Friends.Count == 0)
                 throw new EmptyCollectionException("User has no friends.");
@@ -35,15 +33,9 @@ namespace OChatApp.Services
 
         public async Task SendFriendRequest(string userId, string targetUserId)
         {
-            var user = await _userRepository.GetByIdAsync(userId);
+            var user = await _userRepository.GetByIdAsync(userId, USER_NOT_FOUND);
 
-            if (user == null)
-                throw new NotFoundException("User not found.");
-
-            var targetUser = await _userRepository.GetUserWithFriendRequestsAsync(targetUserId);
-
-            if (targetUserId == null)
-                throw new NotFoundException("User not found.");
+            var targetUser = await _userRepository.GetUserWithFriendRequestsAsync(targetUserId, TARGET_NOT_FOUND);
 
             var newFriendRequest = new FriendRequest()
             {
@@ -51,28 +43,28 @@ namespace OChatApp.Services
                 FromUser = user
             };
 
-            targetUser.FriendRequests.Add(newFriendRequest);
+            if (targetUser.FriendRequests == null)
+                targetUser.FriendRequests = new List<FriendRequest>();
 
+            targetUser.FriendRequests.Add(newFriendRequest);
+            
             await _userRepository.Update(targetUser);
         }
 
         public async Task AcceptFriendRequest(string userId, string requestId)
         {
-            var user = await _userRepository.GetUserWithFriendsAndFriendRequestsAsync(userId);
+            var user = await _userRepository.GetUserWithFriendsAndFriendRequestsAsync(userId, USER_NOT_FOUND);
 
-            if (user == null)
-                throw new NotFoundException("User not found.");
-
-            var request = user.FriendRequests
-                .Single(r => r.Id == requestId);
+            var request = user.FriendRequests?
+                .SingleOrDefault(r => r.Id == requestId);
 
             if (request == null)
-                throw new NotFoundException("Request not found.");
+                throw new FriendRequestException("Request not found.");
 
-            var fromUser = await _userRepository.GetUserWithFriendsAsync(request.FromUser.Id);
+            var fromUser = await _userRepository.GetUserWithFriendsAsync(request.FromUser.Id, SENDER_NOT_FOUND);
 
-            if (fromUser == null)
-                throw new NotFoundException("Sender was not found.");
+            if (request.Status != RequestStatus.Pending)
+                throw new FriendRequestException("In order to accept a friend request, it has to be pending first.");
 
             request.Status = RequestStatus.Accepted;
 
@@ -85,16 +77,16 @@ namespace OChatApp.Services
 
         public async Task RejectFriendRequest(string userId ,string requestId)
         {
-            var user = await _userRepository.GetUserWithFriendRequestsAsync(userId);
+            var user = await _userRepository.GetUserWithFriendRequestsAsync(userId, USER_NOT_FOUND);
 
-            if (user == null)
-                throw new NotFoundException("User not found.");
-
-            var request = user.FriendRequests
-                .Single(r => r.Id == requestId);
+            var request = user.FriendRequests?
+                .SingleOrDefault(r => r.Id == requestId);
 
             if (request == null)
-                throw new NotFoundException("Request not found.");
+                throw new FriendRequestException("Request not found.");
+
+            if (request.Status != RequestStatus.Pending)
+                throw new FriendRequestException("In order to reject a friend request, it has to be pending first.");
 
             request.Status = RequestStatus.Rejected;
 
@@ -103,18 +95,12 @@ namespace OChatApp.Services
 
         public async Task RemoveFriend(string userId, string targetUserId)
         {
-            var user = await _userRepository.GetUserWithFriendsAsync(userId);
+            var user = await _userRepository.GetUserWithFriendsAsync(userId, USER_NOT_FOUND);
 
-            if (user == null)
-                throw new NotFoundException("User not found.");
+            var targetUser = await _userRepository.GetUserWithFriendsAsync(targetUserId, TARGET_NOT_FOUND);
 
-            var targetUser = await _userRepository.GetUserWithFriendsAsync(targetUserId);
-
-            if (targetUser == null)
-                throw new NotFoundException("Target user not found.");
-
-            user.Friends.Remove(targetUser);
-            targetUser.Friends.Remove(user);
+            user.Friends.Remove(user.Friends.First(x => x.Id == targetUser.Id));
+            targetUser.Friends.Remove(targetUser.Friends.First(x => x.Id == user.Id));
 
             await _userRepository.Update(user);
             await _userRepository.Update(targetUser);
@@ -122,12 +108,12 @@ namespace OChatApp.Services
 
         public async Task<IEnumerable<FriendRequest>> GetPendingRequests(string userId)
         {
-            var requests = await _userRepository.GetPendingRequestsAsync(userId);
+            var user = await _userRepository.GetUserWithPendingRequestsAsync(userId, USER_NOT_FOUND);
 
-            if (requests == null || !requests.Any())
+            if (user.FriendRequests == null || !user.FriendRequests.Any())
                 throw new EmptyCollectionException("User does not have pending requests.");
 
-            return requests;
+            return user.FriendRequests;
         }
 
     }

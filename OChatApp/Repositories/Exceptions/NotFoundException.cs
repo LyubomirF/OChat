@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
-namespace OChatApp.Services.Exceptions
+namespace OChatApp.Repositories.Exceptions
 {
     public class NotFoundException : Exception
     {

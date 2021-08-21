@@ -76,6 +76,5 @@ namespace OChatApp.Controllers
 
             return Ok(requests);
         }
-
     }
 }

@@ -1,7 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using OChatApp.Areas.Identity.Data;
 using OChatApp.Data;
-using OChatApp.Services.Exceptions;
+using OChatApp.Repositories.Exceptions;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -14,15 +14,15 @@ namespace OChatApp.Repositories
         public ChatRepository(OChatAppContext dbContext)
             : base(dbContext) { }
 
-        public async Task<ChatRoom> GetChatRoomWithMessegesAsync(string chatId, int page, int pageSize)
+        public async Task<ChatRoom> GetChatRoomWithMessegesAsync(string chatId, int page, int pageSize, string exceptionMessage)
         {
             var chat = await _dbContext.ChatRooms
                 .Include(c => c.Messages)
                 .ThenInclude(m => m.From)
                 .SingleOrDefaultAsync(c => c.Id == chatId);
 
-            if (chat == null)
-                throw new NotFoundException("No chat was found.");
+            if (chat is null)
+                throw new NotFoundException(exceptionMessage);
 
             chat.Messages = chat.Messages
                 .OrderBy(m => m.SentOn.Date)
@@ -34,9 +34,16 @@ namespace OChatApp.Repositories
             return chat;
         }
 
-        public Task<ChatRoom> GetChatWithUsersAsync(string chatId)
-            => _dbContext.ChatRooms
-                .Include(c => c.Users)
-                .SingleOrDefaultAsync(c => c.Id == chatId);
+        public async Task<ChatRoom> GetChatWithUsersAsync(string chatId, string exceptionMessage)
+        {
+            var chat = await _dbContext.ChatRooms
+                           .Include(c => c.Users)
+                           .SingleOrDefaultAsync(c => c.Id == chatId);
+
+            if (chat is null)
+                throw new NotFoundException(exceptionMessage);
+
+            return chat;
+        }
     }
 }

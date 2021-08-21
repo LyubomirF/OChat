@@ -13,6 +13,8 @@ using OChatApp.Repositories;
 
 namespace OChatApp.Services
 {
+    using static ExceptionMessages;
+
     public class ChatService
     {
         private readonly IHubContext<ChatHub, IClient> _hubContext;
@@ -31,15 +33,9 @@ namespace OChatApp.Services
 
         public async Task<ChatRoom> CreateChatRoom(string initiatorId, string targetId, string chatName)
         {
-            var initiator = await _userRepository.GetUserWithChatsAndConnectionsAsync(initiatorId);
+            var initiator = await _userRepository.GetUserWithChatsAndConnectionsAsync(initiatorId, INITIATOR_NOT_FOUND);
 
-            if (initiator == null)
-                throw new NotFoundException("Initiator not found.");
-
-            var target = await _userRepository.GetUserWithChatsAndConnectionsAsync(targetId);
-
-            if (target == null)
-                throw new NotFoundException("Target user not found.");
+            var target = await _userRepository.GetUserWithChatsAndConnectionsAsync(targetId, TARGET_NOT_FOUND);
 
             var commonChat = GetCommonChat(initiator, target);
 
@@ -72,7 +68,7 @@ namespace OChatApp.Services
         public async Task<IEnumerable<Message>> GetChatRoomMessageHistory(string chatId, QueryStringParams messageQueryParams)
         {
             var chat = await _chatRepository
-                .GetChatRoomWithMessegesAsync(chatId, messageQueryParams.Page, messageQueryParams.PageSize);
+                .GetChatRoomWithMessegesAsync(chatId, messageQueryParams.Page, messageQueryParams.PageSize, CHAT_NOT_FOUND);
 
             if (chat.Messages == null || chat.Messages.Count() == 0)
                 throw new EmptyCollectionException("Chat has no messages.");
@@ -82,10 +78,7 @@ namespace OChatApp.Services
 
         public async Task<IEnumerable<ChatRoom>> GetChatRooms(string userId)
         {
-            var user = await _userRepository.GetUserWithChatsAndConnectionsAsync(userId);
-
-            if (user == null)
-                throw new NotFoundException("User not found.");
+            var user = await _userRepository.GetUserWithChatsAndConnectionsAsync(userId, USER_NOT_FOUND);
 
             if (user.ChatRooms == null || user.ChatRooms.Count == 0)
                 throw new EmptyCollectionException("User is not included in any chats.");
@@ -100,10 +93,7 @@ namespace OChatApp.Services
 
         public async Task<ChatRoom> GetChat(string chatId)
         {
-            var chat = await _chatRepository.GetChatWithUsersAsync(chatId);
-
-            if (chat == null)
-                throw new NotFoundException("Chat not found.");
+            var chat = await _chatRepository.GetChatWithUsersAsync(chatId, CHAT_NOT_FOUND);
 
             return chat;
         }

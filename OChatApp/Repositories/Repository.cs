@@ -1,5 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using OChatApp.Data;
+using OChatApp.Repositories.Exceptions;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -15,11 +16,18 @@ namespace OChatApp.Repositories
         protected Repository(OChatAppContext dbContext)
             => _dbContext = dbContext;
 
-        public Task<TEntity> GetByIdAsync(string id)
-            => _dbContext
-                .Set<TEntity>()
-                .FindAsync(id)
-                .AsTask();
+        public async Task<TEntity> GetByIdAsync(string id, string exceptionMessage)
+        {
+            var entity = await _dbContext
+                           .Set<TEntity>()
+                           .FindAsync(id)
+                           .AsTask();
+
+            if (entity is null)
+                throw new NotFoundException(exceptionMessage);
+
+            return entity;
+        }
 
         public async Task InsertNew(TEntity entity)
         {
