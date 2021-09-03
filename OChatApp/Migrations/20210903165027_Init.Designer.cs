@@ -10,7 +10,7 @@ using OChatApp.Data;
 namespace OChatApp.Migrations
 {
     [DbContext(typeof(OChatAppContext))]
-    [Migration("20210830133715_Init")]
+    [Migration("20210903165027_Init")]
     partial class Init
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -211,9 +211,8 @@ namespace OChatApp.Migrations
 
             modelBuilder.Entity("OChat.Connection", b =>
                 {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uniqueidentifier");
+                    b.Property<string>("Id")
+                        .HasColumnType("nvarchar(450)");
 
                     b.Property<Guid?>("UserId")
                         .HasColumnType("uniqueidentifier");

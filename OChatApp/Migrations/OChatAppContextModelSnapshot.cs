@@ -209,9 +209,8 @@ namespace OChatApp.Migrations
 
             modelBuilder.Entity("OChat.Connection", b =>
                 {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uniqueidentifier");
+                    b.Property<string>("Id")
+                        .HasColumnType("nvarchar(450)");
 
                     b.Property<Guid?>("UserId")
                         .HasColumnType("uniqueidentifier");
