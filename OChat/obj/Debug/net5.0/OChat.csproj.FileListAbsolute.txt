@@ -1,0 +1,12 @@
+E:\Random c# stuff\RandomProject\OChatApp\OChat\bin\Debug\net5.0\OChat.deps.json
+E:\Random c# stuff\RandomProject\OChatApp\OChat\bin\Debug\net5.0\OChat.dll
+E:\Random c# stuff\RandomProject\OChatApp\OChat\bin\Debug\net5.0\ref\OChat.dll
+E:\Random c# stuff\RandomProject\OChatApp\OChat\bin\Debug\net5.0\OChat.pdb
+E:\Random c# stuff\RandomProject\OChatApp\OChat\obj\Debug\net5.0\OChat.GeneratedMSBuildEditorConfig.editorconfig
+E:\Random c# stuff\RandomProject\OChatApp\OChat\obj\Debug\net5.0\OChat.AssemblyInfoInputs.cache
+E:\Random c# stuff\RandomProject\OChatApp\OChat\obj\Debug\net5.0\OChat.AssemblyInfo.cs
+E:\Random c# stuff\RandomProject\OChatApp\OChat\obj\Debug\net5.0\OChat.csproj.CoreCompileInputs.cache
+E:\Random c# stuff\RandomProject\OChatApp\OChat\obj\Debug\net5.0\OChat.dll
+E:\Random c# stuff\RandomProject\OChatApp\OChat\obj\Debug\net5.0\ref\OChat.dll
+E:\Random c# stuff\RandomProject\OChatApp\OChat\obj\Debug\net5.0\OChat.pdb
+E:\Random c# stuff\RandomProject\OChatApp\OChat\obj\Debug\net5.0\OChat.csproj.AssemblyReference.cache
