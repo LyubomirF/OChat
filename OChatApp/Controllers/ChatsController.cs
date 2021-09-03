@@ -1,75 +1,91 @@
 ﻿using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.SignalR;
-using Microsoft.EntityFrameworkCore;
-using OChatApp.Areas.Identity.Data;
-using OChatApp.Data;
-using OChatApp.Hubs;
 using OChatApp.Models;
 using OChatApp.Services;
 using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Security.Claims;
 using System.Threading.Tasks;
-using OChatApp;
 using OChatApp.Models.QueryParameters;
+using OChat;
 
 namespace OChatApp.Controllers
 {
     using static ChatRoutes;
-    using static Services.ChatResponses;
 
     [Route(CHATS)]
     [ApiController]
     [Authorize]
     public class ChatsController : ControllerBase
     {
-        private readonly ChatService _chat;
-        public ChatsController(ChatService chat)
+        private readonly ChatService _chatService;
+
+        public ChatsController(ChatService chatService)
         {
-            _chat = chat;
+            _chatService = chatService;
         }
 
         [HttpPost(Name = nameof(CreateChat))]
-        public async Task<IActionResult> CreateChat([FromBody] CreateChatWithModel model)
+        public async Task<IActionResult> CreateChat([FromQuery] CreateChatWithModel model)
         {
-            var chat = await _chat.CreateChatRoom(model.InitiatorId, model.TargetId, model.ChatName);
-            return CreatedAtRoute(nameof(GetChat), new { chat.Id }, null);
-        }
-
-        [HttpGet(USER, Name = nameof(GetChatRooms))]
-        public async Task<IActionResult> GetChatRooms(string userId)
-        {
-            var chats = await _chat.GetChatRooms(userId);
-
-            if(chats == null)
-                return Ok(USER_HAS_NO_CHATS);
-
-            return Ok(chats);
+            var chat = await _chatService.CreateChatRoom(model.ChatName, model.ParticipantsIds);
+            return CreatedAtRoute(nameof(GetChatRoom), new { chat.Id }, null);
         }
 
         [HttpGet(HISTORY, Name = nameof(GetChatRoomMessageHistory))]
-        public async Task<IActionResult> GetChatRoomMessageHistory(string chatId, [FromQuery] QueryStringParams chatQueryParams)
+        public async Task<IActionResult> GetChatRoomMessageHistory(Guid chatId, [FromQuery] QueryStringParams chatQueryParams)
         {
-            var messages = await _chat.GetChatRoomMessageHistory(chatId, chatQueryParams);
-
+            var messages = await _chatService.GetChatRoomMessageHistory(chatId, chatQueryParams);
             return Ok(messages);
+        }
+
+        [HttpGet(LAST_READ_MESSAGE_TIMESTAMP, Name = nameof(GetChatLastReadMessageTimeStamp))]
+        public async Task<IActionResult> GetChatLastReadMessageTimeStamp(Guid userId, Guid chatId)
+        {
+            var timeStamp = await _chatService.GetLastReadMessageTimeStamp(userId, chatId);
+            return Ok(timeStamp);
+        }
+
+        [HttpPost(UPDATE_LAST_READ_MESSAGE_TIMESTAMP, Name = nameof(UpdateChatLastReadMessageTimeStamp))]
+        public async Task<IActionResult> UpdateChatLastReadMessageTimeStamp([FromQuery] UpdateTimeLastMessageWasSeenModel model)
+        {
+            await _chatService.UpdateTimeLastMessageWasSeen(model.UserId, model.UserId, model.TimeLastMessageWasSeen);
+            return Ok();
+        }
+
+        [HttpGet(CONNECT, Name = nameof(ConnectUserToChats))]
+        public async Task<IActionResult> ConnectUserToChats(Guid userId)
+        {
+            await _chatService.ConnectUserToChats(userId);
+            return Ok();
         }
 
         [HttpPost(MESSAGE, Name = nameof(SendMessage))]
         public async Task<IActionResult> SendMessage([FromBody] SendMessageModel model)
         {
-            await _chat.SendMessage(model.ChatId, model.Message);
+            await _chatService.SendMessage(model.ChatId, model.SenderId, model.Message);
             return Ok();
         }
 
-        [HttpGet(CHAT, Name = nameof(GetChat))]
-        public async Task<IActionResult> GetChat(string chatId)
+        [HttpGet(USER, Name = nameof(GetChatRooms))]
+        public async Task<IActionResult> GetChatRooms(Guid userId)
         {
-            var users = await _chat.GetChat(chatId);
+            var chats = await _chatService.GetChatRooms(userId);
+            return Ok(chats);
+        }
+
+        [HttpGet(CHAT, Name = nameof(GetChatRoom))]
+        public async Task<IActionResult> GetChatRoom(Guid chatId)
+        {
+            var users = await _chatService.GetChat(chatId);
             return Ok(users);
+        }
+
+        [HttpGet(NEW_MESSAGES, Name = nameof(GetNewMessagesForUserChats))]
+        public async Task<IActionResult> GetNewMessagesForUserChats(Guid userId)
+        {
+            var chats = await _chatService.GetNewMessages(userId);
+           
+            return Ok(chats);
         }
     }
 }

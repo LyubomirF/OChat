@@ -1,14 +1,17 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using OChatApp.Data;
 using OChatApp.Repositories.Exceptions;
+using OChatApp.Repositories.Interfaces;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Microsoft.EntityFrameworkCore.Migrations;
+
 
 namespace OChatApp.Repositories
 {
-    public abstract class Repository<TEntity> : IRepository<TEntity>
+    public abstract class Repository<TEntity> 
         where TEntity : class
     {
         protected readonly OChatAppContext _dbContext;
@@ -16,34 +19,27 @@ namespace OChatApp.Repositories
         protected Repository(OChatAppContext dbContext)
             => _dbContext = dbContext;
 
-        public async Task<TEntity> GetByIdAsync(string id, string exceptionMessage)
+        protected async Task<TEntity> GetEntityByIdAsync(Guid id, String exceptionMessage)
         {
             var entity = await _dbContext
                            .Set<TEntity>()
                            .FindAsync(id)
                            .AsTask();
 
-            if (entity is null)
-                throw new NotFoundException(exceptionMessage);
-
-            return entity;
+            return entity is null
+                ? throw new NotFoundException(exceptionMessage)
+                : entity;
         }
 
-        public async Task InsertNew(TEntity entity)
-        {
-            _dbContext.Set<TEntity>().Add(entity);
-            await _dbContext.SaveChangesAsync();
-        }
-
-        public async Task Update(TEntity entity)
-        {
-            _dbContext.Entry(entity).State = EntityState.Modified;
-            await _dbContext.SaveChangesAsync();
-        }
-
-        public async Task Delete(TEntity entity)
+        protected async Task Delete(TEntity entity)
         {
             _dbContext.Set<TEntity>().Remove(entity);
+            await _dbContext.SaveChangesAsync();
+        }
+
+        public async Task SaveEntityAsync(TEntity entity)
+        {
+            _dbContext.Set<TEntity>().Update(entity);
             await _dbContext.SaveChangesAsync();
         }
     }

@@ -5,74 +5,83 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
+using OChat;
 using OChatApp.Areas.Identity.Data;
+
+
 
 namespace OChatApp.Data
 {
-    public class OChatAppContext : IdentityDbContext<OChatAppUser>
+    public class OChatAppContext : IdentityDbContext<ApplicationUser>
     {
         public OChatAppContext(DbContextOptions<OChatAppContext> options)
-            : base(options)
-        {
-        }
+            : base(options) { }
+
+        public DbSet<User> DomainUsers { get; set; }
 
         public DbSet<ChatRoom> ChatRooms { get; set; }
 
         public DbSet<Message> Messages { get; set; }
 
+        public DbSet<FriendRequest> FriendRequests { get; set; }
+
         public DbSet<Connection> Connections { get; set; }
 
-        public DbSet<FriendRequest> FriendRequests { get; set; }
+        public DbSet<ApplicationUserToDomainUserMapping> ApplicationUserToDomainUserMappings { get; set; }
 
         protected override void OnModelCreating(ModelBuilder builder)
         {
             base.OnModelCreating(builder);
 
-            builder.Entity<ChatRoom>()
-                .HasKey(c => c.Id);
+            builder.Entity<User>()
+                .HasKey(u => u.Id);
 
-            builder.Entity<Message>()
-                .HasKey(m => m.Id);
-
-            builder.Entity<ChatRoom>()
-                .HasMany<OChatAppUser>(c => c.Users)
-                .WithMany(u => u.ChatRooms);
-
-            builder.Entity<ChatRoom>()
-                .HasMany<Message>(c => c.Messages)
-                .WithOne(m => m.ChatRoom);
-
-            builder.Entity<Message>()
-                .HasOne<OChatAppUser>(m => m.From)
-                .WithMany();
-
-            builder.Entity<OChatAppUser>()
-                .HasMany<OChatAppUser>(u => u.Friends)
+            builder.Entity<User>()
+                .HasMany<User>(u => u.Friends)
                 .WithMany(f => f.Friends)
                 .UsingEntity<Dictionary<string, object>>(
                     "UserFriends",
-                        x => x.HasOne<OChatAppUser>()
+                        x => x.HasOne<User>()
                             .WithMany()
                             .HasForeignKey("UserId")
                             .HasConstraintName("FK_UserFriends_User_UserId")
                             .OnDelete(DeleteBehavior.NoAction),
-                        x => x.HasOne<OChatAppUser>()
+                        x => x.HasOne<User>()
                             .WithMany()
                             .HasForeignKey("FriendId")
                             .HasConstraintName("FK_UserFriends_Friend_FriendId")
                             .OnDelete(DeleteBehavior.Cascade),
-                        x => x.HasKey(new string[] {"UserId", "FriendId"}));
+                        x => x.HasKey(new string[] { "UserId", "FriendId" }));
 
-
-            builder.Entity<OChatAppUser>()
+            builder.Entity<User>()
                 .HasMany<FriendRequest>(u => u.FriendRequests)
-                .WithOne(r => r.FromUser);
+                .WithOne(r => r.From);
 
-        }
+            builder.Entity<User>()
+                .HasMany<Connection>(u => u.Connections);
 
-        internal void AddAsync()
-        {
-            throw new NotImplementedException();
+            builder.Entity<ChatRoom>()
+                .HasKey(c => c.Id);
+
+            builder.Entity<ChatRoom>()
+                .HasMany<User>(c => c.Participants)
+                .WithMany("ChatRooms");
+
+            builder.Entity<ChatRoom>()
+                .HasMany<Message>(c => c.Messages)
+                .WithOne();
+
+            builder.Entity<Message>()
+                .HasKey(m => m.Id);
+
+            builder.Entity<Message>()
+                .HasOne<User>(m => m.Sender);
+
+            builder.Entity<ApplicationUserToDomainUserMapping>()
+                .HasKey(x => new { x.ApplicationUserID, x.DomainUserId });
+
+            builder.Entity<ChatTracker>()
+                .HasKey(x => x.Id);
         }
     }
 }

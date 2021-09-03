@@ -1,17 +1,15 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 
-namespace OChatApp.Repositories
+namespace OChatApp.Repositories.Interfaces
 {
-    public interface IRepository<TEntity>
-        where TEntity : class
+    public interface IRepository<TEntity> 
+        where TEntity: class
     {
-        Task<TEntity> GetByIdAsync(string id, string exceptionMessage);
+        Task<TEntity> GetEntityByIdAsync(Guid id);
 
-        Task InsertNew(TEntity entity);
-
-        Task Update(TEntity entity);
-
-        Task Delete(TEntity entity);
+        Task SaveEntityAsync(TEntity entity);
     }
 }

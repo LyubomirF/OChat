@@ -41,7 +41,7 @@ namespace OChatApp
                     },
                     OnTokenValidated = context =>
                     {
-                        var userManager = context.HttpContext.RequestServices.GetRequiredService<UserManager<OChatAppUser>>();
+                        var userManager = context.HttpContext.RequestServices.GetRequiredService<UserManager<ApplicationUser>>();
                         var user = userManager.GetUserAsync(context.HttpContext.User);
 
                         if (user == null)

@@ -9,13 +9,13 @@ using OChatApp.Data;
 using OChatApp.Hubs;
 using OChatApp.Models.QueryParameters;
 using OChatApp.Services.Exceptions;
-using OChatApp.Repositories;
+using OChat;
+using OChatApp.Repositories.Interfaces;
+using OChatApp.Services.Interfaces;
 
 namespace OChatApp.Services
 {
-    using static ExceptionMessages;
-
-    public class ChatService
+    public class ChatService : IChatService
     {
         private readonly IHubContext<ChatHub, IClient> _hubContext;
         private readonly IUserRepository _userRepository;
@@ -31,109 +31,172 @@ namespace OChatApp.Services
             _chatRepository = chatRepository;
         }
 
-        public async Task<ChatRoom> CreateChatRoom(string initiatorId, string targetId, string chatName)
+        public async Task<ChatRoom> CreateChatRoom(String chatName, params Guid[] participantsIds)
         {
-            var initiator = await _userRepository.GetUserWithChatsAndConnectionsAsync(initiatorId, INITIATOR_NOT_FOUND);
+            var participants = await GetParticipants(participantsIds);
 
-            var target = await _userRepository.GetUserWithChatsAndConnectionsAsync(targetId, TARGET_NOT_FOUND);
+            var newChat = await CreateNewChat(participants, chatName);
 
-            var commonChat = GetCommonChat(initiator, target);
-
-            if (commonChat != null)
-                return commonChat;
-
-            var newChat = new ChatRoom()
-            {
-                Name = chatName,
-                Messages = new List<Message>(),
-                Users = new List<OChatAppUser>()
-                    {
-                        initiator,
-                        target
-                    }
-            };
-
-            initiator.ChatRooms.Add(newChat);
-            target.ChatRooms.Add(newChat);
-
-            await _userRepository.Update(initiator);
-            await _userRepository.Update(target);
-
-            await AddUserConnectionsToSignalRGroup(initiator.Connections, newChat);
-            await AddUserConnectionsToSignalRGroup(target.Connections, newChat);
+            await CreateChatTrackerFor(participants, newChat);
 
             return newChat;
         }
 
-        public async Task<IEnumerable<Message>> GetChatRoomMessageHistory(string chatId, QueryStringParams messageQueryParams)
+        public async Task<IEnumerable<Message>> GetChatRoomMessageHistory(Guid chatId, QueryStringParams messageQueryParams)
         {
             var chat = await _chatRepository
-                .GetChatRoomWithMessegesAsync(chatId, messageQueryParams.Page, messageQueryParams.PageSize, CHAT_NOT_FOUND);
+                .GetChatRoomWithMessegesAsync(chatId, messageQueryParams.Page, messageQueryParams.PageSize);
 
-            if (chat.Messages == null || chat.Messages.Count() == 0)
+            if (chat.Messages == null || chat.Messages.Count == 0)
                 throw new EmptyCollectionException("Chat has no messages.");
 
             return chat.Messages;
         }
 
-        public async Task<IEnumerable<ChatRoom>> GetChatRooms(string userId)
+        public async Task<DateTime> GetLastReadMessageTimeStamp(Guid userId, Guid chatId)
         {
-            var user = await _userRepository.GetUserWithChatsAndConnectionsAsync(userId, USER_NOT_FOUND);
+            var user = await _userRepository.GetUserWithChatTrackers(userId);
 
-            if (user.ChatRooms == null || user.ChatRooms.Count == 0)
-                throw new EmptyCollectionException("User is not included in any chats.");
+            var tracker = user.ChatTrackers
+                .SingleOrDefault(t => t.Chat.Id == chatId);
 
-            await SetUpSignalRGroupsForExistingUserChats(user);
+            if (tracker is null)
+                throw new ChatTrackerException("Chat tracker for user is not found.");
 
-            return user.ChatRooms;
+            return tracker.LastReadMessageTimeStamp.Value;
         }
 
-        public async Task SendMessage(string chatId, string message)
-            => await _hubContext.Clients.Group(chatId).ReceiveMessage(message);
-
-        public async Task<ChatRoom> GetChat(string chatId)
+        public async Task UpdateTimeLastMessageWasSeen(Guid userId, Guid chatId, DateTime timeLastMessageWasSeen)
         {
-            var chat = await _chatRepository.GetChatWithUsersAsync(chatId, CHAT_NOT_FOUND);
+            var user = await _userRepository.GetUserWithChatTrackers(userId);
 
-            return chat;
+            var tracker = user.ChatTrackers
+                .SingleOrDefault(t => t.Chat.Id == chatId);
+
+            if (tracker is null)
+                throw new ChatTrackerException("Chat tracker for user is not found.");
+
+            tracker.LastReadMessageTimeStamp = timeLastMessageWasSeen;
+
+            await _userRepository.SaveEntityAsync(user);
         }
 
-        private ChatRoom GetCommonChat(OChatAppUser user1, OChatAppUser user2)
+        public async Task<IEnumerable<ChatRoom>> GetChatRooms(Guid userId)
         {
-            if (user1.ChatRooms == null || user2.ChatRooms == null)
-                return null;
+            var userChats = await _chatRepository.GetChatsForUser(userId);
 
-            var hashset = new HashSet<string>();
-            var list = new List<ChatRoom>();
-
-            foreach (var chat in user1.ChatRooms)
-                hashset.Add(chat.Id);
-
-            foreach (var chat in user2.ChatRooms)
-                if (hashset.Contains(chat.Id))
-                    list.Add(chat);
-
-            var commonChat = list
-                .Where(c => c.Users.Count == 2)
-                .SingleOrDefault();
-
-            if (commonChat == null)
-                return null;
-
-            return commonChat;
+            return !userChats.Any()
+                ? throw new EmptyCollectionException("User is not included in any chats.")
+                : userChats;
         }
 
-        private async Task SetUpSignalRGroupsForExistingUserChats(OChatAppUser user)
+        public async Task ConnectUserToChats(Guid userId)
         {
-            foreach (var connection in user.Connections)
-                foreach (var chat in user.ChatRooms)
-                    await _hubContext.Groups.AddToGroupAsync(connection.Id, chat.Id);
+            var user = await _userRepository.GetUserWithConnectionsAsync(userId);
+            var chats = await _chatRepository.GetChatsForUser(userId);
+
+            await SetUpSignalRGroupsFor(chats, user);
         }
-       
-        private async Task AddUserConnectionsToSignalRGroup(IEnumerable<Connection> userConnections, ChatRoom chat)
+
+        public async Task SendMessage(Guid chatId, Guid senderId, String message)
         {
-            foreach (var connection in userConnections)
-                await _hubContext.Groups.AddToGroupAsync(connection.Id, chat.Id);
+            Task saveMessage = SaveMessageToDatabase(chatId, senderId, message);
+            Task sendMessage = _hubContext.Clients.Group(chatId.ToString()).ReceiveMessage(message);
+
+            await Task.WhenAll(saveMessage, sendMessage);
         }
+
+        public Task<ChatRoom> GetChat(Guid chatId)
+            => _chatRepository.GetEntityByIdAsync(chatId);
+
+        public async Task<IEnumerable<ChatRoom>> GetNewMessages(Guid userId)
+        {
+            var user = await _userRepository.GetUserWithChatTrackers(userId);
+
+            IEnumerable<Task<ChatRoom>> chatsWithNewMessages = user.ChatTrackers
+                .Select(async x => await _chatRepository.GetChatWithMessagesAfter(x.Chat.Id, x.LastReadMessageTimeStamp.Value));
+
+            return await Task.WhenAll(chatsWithNewMessages);
+        }
+
+        private Task<User[]> GetParticipants(Guid[] participantsIds)
+        {
+            Task<User>[] getUsers = new Task<User>[participantsIds.Length];
+
+            for (int i = 0; i < participantsIds.Length; i++)
+                getUsers[i] = _userRepository.GetEntityByIdAsync(participantsIds[i]);
+
+            return Task.WhenAll(getUsers);
+        }
+
+        private async Task<ChatRoom> CreateNewChat(User[] users, String chatName)
+        {
+            var newChat = new ChatRoom()
+            {
+                Name = chatName,
+                Participants = users
+            };
+
+            await _chatRepository.SaveEntityAsync(newChat);
+
+            return newChat;
+        }
+
+        private Task CreateChatTrackerFor(User[] participants, ChatRoom newChat)
+        {
+            var trackers = new List<ChatTracker>();
+
+            for (int i = 0; i < participants.Length; i++)
+                trackers.Add(new ChatTracker()
+                {
+                    Chat = newChat,
+                    LastReadMessageTimeStamp = DateTime.Now
+                });
+
+            for (int i = 0; i < participants.Length; i++)
+                participants[i].ChatTrackers.Add(trackers[i]);
+
+            Task[] saveParticipants = new Task[participants.Length];
+
+            for (int i = 0; i < participants.Length; i++)
+                saveParticipants[i] = _userRepository.SaveEntityAsync(participants[i]);
+
+            return Task.WhenAll(saveParticipants);
+        }
+
+        private async Task SaveMessageToDatabase(Guid chatId, Guid senderId, String message)
+        {
+            var sender = await _userRepository.GetEntityByIdAsync(senderId);
+            var chat = await _chatRepository.GetEntityByIdAsync(chatId);
+
+            var newMessage = new Message()
+            {
+                Content = message,
+                SentOn = DateTime.Now,
+                Sender = sender
+            };
+
+            chat.Messages.Add(newMessage);
+
+            await _chatRepository.SaveEntityAsync(chat);
+        }
+
+        private Task SetUpSignalRGroupsFor(IEnumerable<ChatRoom> chats, User user)
+        {
+            var numberOfConnections = user.Connections.Count;
+            var numberOfChats = chats.Count();
+
+            Task[] addUserConnectionsToSignalRGroups = new Task[numberOfConnections * numberOfChats];
+
+            Int32 taskCounter = 0;
+
+            foreach (var chat in chats)
+                foreach (var connection in user.Connections)
+                    addUserConnectionsToSignalRGroups[taskCounter++] =
+                        _hubContext.Groups.AddToGroupAsync(connection.Id.ToString(), chat.Id.ToString());
+
+            return Task.WhenAll(addUserConnectionsToSignalRGroups);
+        }
+
     }
 }

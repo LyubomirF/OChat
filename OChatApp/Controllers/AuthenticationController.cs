@@ -32,7 +32,7 @@ namespace OChatApp.Controllers
         public async Task<IActionResult> GetToken(
             [FromBody] LoginModel loginModel,
             [FromServices] OChatAppContext dbContext,
-            [FromServices] SignInManager<OChatAppUser> signInManager,
+            [FromServices] SignInManager<ApplicationUser> signInManager,
             [FromServices] IConfiguration configuration)
         {
             var user = await dbContext.Users
@@ -55,7 +55,7 @@ namespace OChatApp.Controllers
         [HttpPost(REGISTER, Name = nameof(Register))]
         public async Task<IActionResult> Register(
             [FromBody] LoginModel loginModel,
-            [FromServices] UserManager<OChatAppUser> userManager)
+            [FromServices] UserManager<ApplicationUser> userManager)
         {
             var result = await RegisterUser(loginModel, userManager);
 
@@ -71,15 +71,15 @@ namespace OChatApp.Controllers
         }
 
         [HttpPost(LOGOUT, Name = nameof(Logout))]
-        public async Task<IActionResult> Logout([FromServices] SignInManager<OChatAppUser> signInManager)
+        public async Task<IActionResult> Logout([FromServices] SignInManager<ApplicationUser> signInManager)
         {
             await signInManager.SignOutAsync();
             return Ok();
         }
 
-        private async Task<IdentityResult> RegisterUser(LoginModel loginModel, UserManager<OChatAppUser> userManager)
+        private async Task<IdentityResult> RegisterUser(LoginModel loginModel, UserManager<ApplicationUser> userManager)
         {
-            var newUser = new OChatAppUser()
+            var newUser = new ApplicationUser()
             {
                 UserName = loginModel.Email,
                 Email = loginModel.Email,
@@ -89,7 +89,7 @@ namespace OChatApp.Controllers
             return await userManager.CreateAsync(newUser, loginModel.Password);
         }
 
-        private string CreateJSONWebToken(OChatAppUser user, IConfiguration configuration)
+        private string CreateJSONWebToken(ApplicationUser user, IConfiguration configuration)
         {
             var tokenHandler = new JwtSecurityTokenHandler();
             var key = Encoding.ASCII.GetBytes(configuration.GetSection("JwtTokenKey").Value);

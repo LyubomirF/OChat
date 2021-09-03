@@ -1,12 +1,20 @@
-﻿using OChatApp.Areas.Identity.Data;
+﻿using System;
+using System.Collections.Generic;
 using System.Threading.Tasks;
+using OChat;
 
-namespace OChatApp.Repositories
+namespace OChatApp.Repositories.Interfaces
 {
     public interface IChatRepository : IRepository<ChatRoom>
     {
-        Task<ChatRoom> GetChatRoomWithMessegesAsync(string chatId, int page, int pageSize, string exceptionMessage);
+        Task DeleteChat(ChatRoom chat);
 
-        Task<ChatRoom> GetChatWithUsersAsync(string chatId, string exceptionMessage);
+        Task<ChatRoom> GetChatRoomWithMessegesAsync(Guid chatId, Int32 page, Int32 pageSize);
+
+        Task<ChatRoom> GetChatWithParticipantsAsync(Guid chatId);
+
+        Task<IEnumerable<ChatRoom>> GetChatsForUser(Guid userId);
+
+        Task<ChatRoom> GetChatWithMessagesAfter(Guid chatId, DateTime time);
     }
 }

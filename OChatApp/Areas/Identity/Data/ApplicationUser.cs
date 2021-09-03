@@ -2,13 +2,11 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Identity;
 
 namespace OChatApp.Areas.Identity.Data
 {
-    public class Connection
+    public class ApplicationUser : IdentityUser
     {
-        public string Id { get; set; }
-
-        public bool Connected { get; set; }
     }
 }

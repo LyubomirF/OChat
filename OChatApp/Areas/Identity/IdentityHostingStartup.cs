@@ -20,7 +20,7 @@ namespace OChatApp.Areas.Identity
                     options.UseSqlServer(
                         context.Configuration.GetConnectionString("OChatAppContextConnection")));
 
-                services.AddDefaultIdentity<OChatAppUser>(options => options.SignIn.RequireConfirmedAccount = true)
+                services.AddDefaultIdentity<ApplicationUser>(options => options.SignIn.RequireConfirmedAccount = true)
                     .AddEntityFrameworkStores<OChatAppContext>();
             });
         }

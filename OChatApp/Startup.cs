@@ -11,6 +11,7 @@ using Microsoft.IdentityModel.Tokens;
 using OChatApp.Areas.Identity.Data;
 using OChatApp.Hubs;
 using OChatApp.Repositories;
+using OChatApp.Repositories.Interfaces;
 using OChatApp.Services;
 using System.Text;
 using System.Threading.Tasks;

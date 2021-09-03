@@ -5,12 +5,12 @@ using System.Threading.Tasks;
 
 namespace OChatApp.Models
 {
-    public class SendMessageModel
+    public class UpdateTimeLastMessageWasSeenModel
     {
-        public Guid SenderId { get; set; }
+        public Guid UserId { get; set; }
 
         public Guid ChatId { get; set; }
 
-        public String Message { get; set; }
+        public DateTime TimeLastMessageWasSeen { get; set; }
     }
 }

@@ -7,9 +7,7 @@ namespace OChatApp.Models
 {
     public class CreateChatWithModel
     {
-        public string InitiatorId { get; set; }
-
-        public string TargetId { get; set; }
+        public Guid[] ParticipantsIds { get; set; }    
 
         public string ChatName { get; set; }
     }

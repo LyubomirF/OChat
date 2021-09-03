@@ -7,43 +7,51 @@ namespace OChatApp
 {
     public static class ChatRoutes
     {
-        public const string CHATS = "chats";
+        public const String CHATS = "chats";
 
-        public const string MESSAGE = "{chatId}/message";
+        public const String MESSAGE = "{chatId}/message";
 
-        public const string HISTORY = "{chatId}/history";
+        public const String HISTORY = "{chatId}/history";
 
-        public const string USER = "{userId}";
+        public const String USER = "{userId}";
 
-        public const string CHAT = "{chatId}";
+        public const String CHAT = "{chatId}";
+
+        public const String LAST_READ_MESSAGE_TIMESTAMP = "{chatId}/lastReadMessage/{userId}";
+
+        public const String UPDATE_LAST_READ_MESSAGE_TIMESTAMP = "{chatId}/lastReadMessage/{userId}/{lastReadMessageTimeStamp}";
+
+        public const String CONNECT = "{userId}/connect";
+
+        public const String NEW_MESSAGES = "{userId}/newMessages";
     }
 
     public static class UsersRoutes
     {
-        public const string USERS = "users";
+        public const String USERS = "users";
 
-        public const string FRIENDS = "{userId}/friends";
+        public const String FRIENDS = "{userId}/friends";
 
-        public const string REQESTS = "{userId}/requests";
+        public const String REQESTS = "{userId}/requests";
 
-        public const string REQUEST = "{userId}/request/{targetUserId}";
+        public const String REQUEST = "{userId}/request/{targetUserId}";
 
-        public const string ACCEPT = "{userId}/requests/{requestId}/accept";
+        public const String ACCEPT = "{userId}/requests/{requestId}/accept";
 
-        public const string REJECT = "{userId}/requests/{requestId}/reject";
+        public const String REJECT = "{userId}/requests/{requestId}/reject";
 
-        public const string REMOVE = "{userId}/friends/{friendId}/remove";
+        public const String REMOVE = "{userId}/friends/{friendId}/remove";
     }
 
     public static class AuthenticationRoutes
     {
-        public const string AUTHENTICATION = "auth";
+        public const String AUTHENTICATION = "auth";
 
-        public const string TOKEN = "token";
+        public const String TOKEN = "token";
 
-        public const string REGISTER = "register";
+        public const String REGISTER = "register";
 
-        public const string LOGOUT = "logout";
+        public const String LOGOUT = "logout";
     }
 
 }

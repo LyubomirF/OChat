@@ -19,19 +19,19 @@ namespace OChatApp.Migrations
                 .HasAnnotation("ProductVersion", "5.0.8")
                 .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
 
-            modelBuilder.Entity("ChatRoomOChatAppUser", b =>
+            modelBuilder.Entity("ChatRoomUser", b =>
                 {
-                    b.Property<string>("ChatRoomsId")
-                        .HasColumnType("nvarchar(450)");
+                    b.Property<Guid>("ChatRoomsId")
+                        .HasColumnType("uniqueidentifier");
 
-                    b.Property<string>("UsersId")
-                        .HasColumnType("nvarchar(450)");
+                    b.Property<Guid>("ParticipantsId")
+                        .HasColumnType("uniqueidentifier");
 
-                    b.HasKey("ChatRoomsId", "UsersId");
+                    b.HasKey("ChatRoomsId", "ParticipantsId");
 
-                    b.HasIndex("UsersId");
+                    b.HasIndex("ParticipantsId");
 
-                    b.ToTable("ChatRoomOChatAppUser");
+                    b.ToTable("ChatRoomUser");
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRole", b =>
@@ -169,10 +169,11 @@ namespace OChatApp.Migrations
                     b.ToTable("AspNetUserTokens");
                 });
 
-            modelBuilder.Entity("OChatApp.Areas.Identity.Data.ChatRoom", b =>
+            modelBuilder.Entity("OChat.ChatRoom", b =>
                 {
-                    b.Property<string>("Id")
-                        .HasColumnType("nvarchar(450)");
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
 
                     b.Property<string>("Name")
                         .HasColumnType("nvarchar(max)");
@@ -182,52 +183,79 @@ namespace OChatApp.Migrations
                     b.ToTable("ChatRooms");
                 });
 
-            modelBuilder.Entity("OChatApp.Areas.Identity.Data.Connection", b =>
+            modelBuilder.Entity("OChat.ChatTracker", b =>
                 {
-                    b.Property<string>("Id")
-                        .HasColumnType("nvarchar(450)");
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
 
-                    b.Property<bool>("Connected")
-                        .HasColumnType("bit");
+                    b.Property<Guid?>("ChatId")
+                        .HasColumnType("uniqueidentifier");
 
-                    b.Property<string>("OChatAppUserId")
-                        .HasColumnType("nvarchar(450)");
+                    b.Property<DateTime?>("LastReadMessageTimeStamp")
+                        .HasColumnType("datetime2");
+
+                    b.Property<Guid?>("UserId")
+                        .HasColumnType("uniqueidentifier");
 
                     b.HasKey("Id");
 
-                    b.HasIndex("OChatAppUserId");
+                    b.HasIndex("ChatId");
+
+                    b.HasIndex("UserId");
+
+                    b.ToTable("ChatTracker");
+                });
+
+            modelBuilder.Entity("OChat.Connection", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid?>("UserId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("UserId");
 
                     b.ToTable("Connections");
                 });
 
-            modelBuilder.Entity("OChatApp.Areas.Identity.Data.FriendRequest", b =>
+            modelBuilder.Entity("OChat.FriendRequest", b =>
                 {
-                    b.Property<string>("Id")
-                        .HasColumnType("nvarchar(450)");
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
 
-                    b.Property<string>("FromUserId")
-                        .HasColumnType("nvarchar(450)");
+                    b.Property<Guid?>("FromId")
+                        .HasColumnType("uniqueidentifier");
 
                     b.Property<int>("Status")
                         .HasColumnType("int");
 
                     b.HasKey("Id");
 
-                    b.HasIndex("FromUserId");
+                    b.HasIndex("FromId");
 
                     b.ToTable("FriendRequests");
                 });
 
-            modelBuilder.Entity("OChatApp.Areas.Identity.Data.Message", b =>
+            modelBuilder.Entity("OChat.Message", b =>
                 {
-                    b.Property<string>("Id")
-                        .HasColumnType("nvarchar(450)");
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
 
-                    b.Property<string>("ChatRoomId")
-                        .HasColumnType("nvarchar(450)");
+                    b.Property<Guid?>("ChatRoomId")
+                        .HasColumnType("uniqueidentifier");
 
-                    b.Property<string>("FromId")
-                        .HasColumnType("nvarchar(450)");
+                    b.Property<string>("Content")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<Guid?>("SenderId")
+                        .HasColumnType("uniqueidentifier");
 
                     b.Property<DateTime>("SentOn")
                         .HasColumnType("datetime2");
@@ -236,12 +264,26 @@ namespace OChatApp.Migrations
 
                     b.HasIndex("ChatRoomId");
 
-                    b.HasIndex("FromId");
+                    b.HasIndex("SenderId");
 
                     b.ToTable("Messages");
                 });
 
-            modelBuilder.Entity("OChatApp.Areas.Identity.Data.OChatAppUser", b =>
+            modelBuilder.Entity("OChat.User", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("Username")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("DomainUsers");
+                });
+
+            modelBuilder.Entity("OChatApp.Areas.Identity.Data.ApplicationUser", b =>
                 {
                     b.Property<string>("Id")
                         .HasColumnType("nvarchar(450)");
@@ -306,13 +348,28 @@ namespace OChatApp.Migrations
                     b.ToTable("AspNetUsers");
                 });
 
-            modelBuilder.Entity("UserFriends", b =>
+            modelBuilder.Entity("OChatApp.Areas.Identity.Data.ApplicationUserToDomainUserMapping", b =>
                 {
-                    b.Property<string>("UserId")
+                    b.Property<string>("ApplicationUserID")
                         .HasColumnType("nvarchar(450)");
 
-                    b.Property<string>("FriendId")
-                        .HasColumnType("nvarchar(450)");
+                    b.Property<Guid>("DomainUserId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.HasKey("ApplicationUserID", "DomainUserId");
+
+                    b.HasIndex("DomainUserId");
+
+                    b.ToTable("ApplicationUserToDomainUserMappings");
+                });
+
+            modelBuilder.Entity("UserFriends", b =>
+                {
+                    b.Property<Guid>("UserId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid>("FriendId")
+                        .HasColumnType("uniqueidentifier");
 
                     b.HasKey("UserId", "FriendId");
 
@@ -321,17 +378,17 @@ namespace OChatApp.Migrations
                     b.ToTable("UserFriends");
                 });
 
-            modelBuilder.Entity("ChatRoomOChatAppUser", b =>
+            modelBuilder.Entity("ChatRoomUser", b =>
                 {
-                    b.HasOne("OChatApp.Areas.Identity.Data.ChatRoom", null)
+                    b.HasOne("OChat.ChatRoom", null)
                         .WithMany()
                         .HasForeignKey("ChatRoomsId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("OChatApp.Areas.Identity.Data.OChatAppUser", null)
+                    b.HasOne("OChat.User", null)
                         .WithMany()
-                        .HasForeignKey("UsersId")
+                        .HasForeignKey("ParticipantsId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
                 });
@@ -347,7 +404,7 @@ namespace OChatApp.Migrations
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserClaim<string>", b =>
                 {
-                    b.HasOne("OChatApp.Areas.Identity.Data.OChatAppUser", null)
+                    b.HasOne("OChatApp.Areas.Identity.Data.ApplicationUser", null)
                         .WithMany()
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -356,7 +413,7 @@ namespace OChatApp.Migrations
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserLogin<string>", b =>
                 {
-                    b.HasOne("OChatApp.Areas.Identity.Data.OChatAppUser", null)
+                    b.HasOne("OChatApp.Areas.Identity.Data.ApplicationUser", null)
                         .WithMany()
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -371,7 +428,7 @@ namespace OChatApp.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("OChatApp.Areas.Identity.Data.OChatAppUser", null)
+                    b.HasOne("OChatApp.Areas.Identity.Data.ApplicationUser", null)
                         .WithMany()
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -380,54 +437,84 @@ namespace OChatApp.Migrations
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserToken<string>", b =>
                 {
-                    b.HasOne("OChatApp.Areas.Identity.Data.OChatAppUser", null)
+                    b.HasOne("OChatApp.Areas.Identity.Data.ApplicationUser", null)
                         .WithMany()
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
                 });
 
-            modelBuilder.Entity("OChatApp.Areas.Identity.Data.Connection", b =>
+            modelBuilder.Entity("OChat.ChatTracker", b =>
                 {
-                    b.HasOne("OChatApp.Areas.Identity.Data.OChatAppUser", null)
-                        .WithMany("Connections")
-                        .HasForeignKey("OChatAppUserId");
-                });
-
-            modelBuilder.Entity("OChatApp.Areas.Identity.Data.FriendRequest", b =>
-                {
-                    b.HasOne("OChatApp.Areas.Identity.Data.OChatAppUser", "FromUser")
-                        .WithMany("FriendRequests")
-                        .HasForeignKey("FromUserId");
-
-                    b.Navigation("FromUser");
-                });
-
-            modelBuilder.Entity("OChatApp.Areas.Identity.Data.Message", b =>
-                {
-                    b.HasOne("OChatApp.Areas.Identity.Data.ChatRoom", "ChatRoom")
-                        .WithMany("Messages")
-                        .HasForeignKey("ChatRoomId");
-
-                    b.HasOne("OChatApp.Areas.Identity.Data.OChatAppUser", "From")
+                    b.HasOne("OChat.ChatRoom", "Chat")
                         .WithMany()
-                        .HasForeignKey("FromId");
+                        .HasForeignKey("ChatId");
 
-                    b.Navigation("ChatRoom");
+                    b.HasOne("OChat.User", null)
+                        .WithMany("ChatTrackers")
+                        .HasForeignKey("UserId");
+
+                    b.Navigation("Chat");
+                });
+
+            modelBuilder.Entity("OChat.Connection", b =>
+                {
+                    b.HasOne("OChat.User", null)
+                        .WithMany("Connections")
+                        .HasForeignKey("UserId");
+                });
+
+            modelBuilder.Entity("OChat.FriendRequest", b =>
+                {
+                    b.HasOne("OChat.User", "From")
+                        .WithMany("FriendRequests")
+                        .HasForeignKey("FromId");
 
                     b.Navigation("From");
                 });
 
+            modelBuilder.Entity("OChat.Message", b =>
+                {
+                    b.HasOne("OChat.ChatRoom", null)
+                        .WithMany("Messages")
+                        .HasForeignKey("ChatRoomId");
+
+                    b.HasOne("OChat.User", "Sender")
+                        .WithMany()
+                        .HasForeignKey("SenderId");
+
+                    b.Navigation("Sender");
+                });
+
+            modelBuilder.Entity("OChatApp.Areas.Identity.Data.ApplicationUserToDomainUserMapping", b =>
+                {
+                    b.HasOne("OChatApp.Areas.Identity.Data.ApplicationUser", "ApplicationUser")
+                        .WithMany()
+                        .HasForeignKey("ApplicationUserID")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("OChat.User", "DomainUser")
+                        .WithMany()
+                        .HasForeignKey("DomainUserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("ApplicationUser");
+
+                    b.Navigation("DomainUser");
+                });
+
             modelBuilder.Entity("UserFriends", b =>
                 {
-                    b.HasOne("OChatApp.Areas.Identity.Data.OChatAppUser", null)
+                    b.HasOne("OChat.User", null)
                         .WithMany()
                         .HasForeignKey("FriendId")
                         .HasConstraintName("FK_UserFriends_Friend_FriendId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("OChatApp.Areas.Identity.Data.OChatAppUser", null)
+                    b.HasOne("OChat.User", null)
                         .WithMany()
                         .HasForeignKey("UserId")
                         .HasConstraintName("FK_UserFriends_User_UserId")
@@ -435,13 +522,15 @@ namespace OChatApp.Migrations
                         .IsRequired();
                 });
 
-            modelBuilder.Entity("OChatApp.Areas.Identity.Data.ChatRoom", b =>
+            modelBuilder.Entity("OChat.ChatRoom", b =>
                 {
                     b.Navigation("Messages");
                 });
 
-            modelBuilder.Entity("OChatApp.Areas.Identity.Data.OChatAppUser", b =>
+            modelBuilder.Entity("OChat.User", b =>
                 {
+                    b.Navigation("ChatTrackers");
+
                     b.Navigation("Connections");
 
                     b.Navigation("FriendRequests");

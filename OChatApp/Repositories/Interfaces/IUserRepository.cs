@@ -1,22 +1,21 @@
-﻿using OChatApp.Areas.Identity.Data;
-using System.Collections.Generic;
+﻿using System;
 using System.Threading.Tasks;
-
-namespace OChatApp.Repositories
+using OChat;
+namespace OChatApp.Repositories.Interfaces
 {
-    public interface IUserRepository : IRepository<OChatAppUser>
+    public interface IUserRepository : IRepository<User>
     {
         //request for user with chats only
-        Task<OChatAppUser> GetUserWithFriendsAsync(string userId, string exceptionMessage);
+        Task<User> GetUserWithFriendsAsync(Guid userId);
 
-        Task<OChatAppUser> GetUserWithChatsAndConnectionsAsync(string userId, string exceptionMessage);
+        Task<User> GetUserWithFriendsAndFriendRequestsAsync(Guid userId);
 
-        Task<OChatAppUser> GetUserWithFriendsAndFriendRequestsAsync(string userId, string exceptionMessage);
+        Task<User> GetUserWithFriendRequestsAsync(Guid userId);
 
-        Task<OChatAppUser> GetUserWithFriendRequestsAsync(string userId, string exceptionMessage);
+        Task<User> GetUserWithConnectionsAsync(Guid userId);
 
-        OChatAppUser GetUserWithConnections(string userId, string exceptionMessage);
+        Task<User> GetUserWithPendingRequestsAsync(Guid userId);
 
-        Task<OChatAppUser> GetUserWithPendingRequestsAsync(string userId, string exceptionMessage);
+        Task<User> GetUserWithChatTrackers(Guid userId);
     }
 }
