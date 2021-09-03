@@ -5,9 +5,12 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.SignalR;
 using Microsoft.EntityFrameworkCore;
+using OChat;
 using OChatApp.Areas.Identity.Data;
 using OChatApp.Data;
 using OChatApp.Repositories;
+using OChatApp.Repositories.Exceptions;
+using OChatApp.Repositories.Interfaces;
 using OChatApp.Services.Exceptions;
 
 namespace OChatApp.Hubs
@@ -20,50 +23,41 @@ namespace OChatApp.Hubs
         public ChatHub(IUserRepository userRepository)
             => _userRepository = userRepository;
 
-        //public async Task SendMessage(string message)
-        //{
-        //    await Clients.All.SendAsync("ReceiveMessage", message);
-        //}
-
-        public override Task OnConnectedAsync()
+        public override async Task OnConnectedAsync()
         {
             if (Context.UserIdentifier is null)
                 throw new NotFoundException("No logged user found.");
 
             var callerConnectionId = Context.ConnectionId;
 
-            var user = _userRepository
-                .GetUserWithConnections(Context.UserIdentifier);
+            var user = await _userRepository
+                .GetUserWithConnectionsAsync(Guid.Parse(Context.UserIdentifier));
 
             var newUserConnection = new Connection()
             {
-                Id = callerConnectionId,
-                Connected = true
+                Id = Guid.Parse(callerConnectionId)
             };
-
-            if (user.Connections == null)
-                user.Connections = new List<Connection>();
 
             user.Connections.Add(newUserConnection);
 
-            _userRepository.Update(user);
+            await _userRepository.SaveEntityAsync(user);
 
-            return base.OnConnectedAsync();
+            await base.OnConnectedAsync();
         }
 
-        public override Task OnDisconnectedAsync(Exception exception)
+        public override async Task OnDisconnectedAsync(Exception exception)
         {
-            var user = _userRepository
-                .GetUserWithConnections(Context.UserIdentifier);
+            var user = await _userRepository
+                .GetUserWithConnectionsAsync(Guid.Parse(Context.UserIdentifier));
 
             var userConnection = user.Connections
-                .SingleOrDefault(c => c.Id == Context.ConnectionId);
+                .SingleOrDefault(c => c.Id == Guid.Parse(Context.ConnectionId));
 
             user.Connections.Remove(userConnection);
 
-            _userRepository.Update(user);
+            await _userRepository.SaveEntityAsync(user);
 
-            return base.OnDisconnectedAsync(exception);
+            await base.OnDisconnectedAsync(exception);
         }
     }
 }
