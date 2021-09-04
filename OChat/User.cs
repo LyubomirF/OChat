@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 
-namespace OChat
+namespace OChat.Domain
 {
     public enum UserStatus
     {

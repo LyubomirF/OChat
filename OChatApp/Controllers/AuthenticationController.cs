@@ -4,17 +4,14 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.IdentityModel.Tokens;
-using OChatApp.Areas.Identity.Data;
-using OChatApp.Data;
 using OChatApp.Models;
 using System;
-using System.Collections.Generic;
 using System.IdentityModel.Tokens.Jwt;
-using System.Linq;
 using System.Security.Claims;
 using System.Text;
 using System.Threading.Tasks;
-using OChatApp;
+using OChat.Infrastructure.Persistance;
+using OChat.Infrastructure.Identity;
 
 namespace OChatApp.Controllers
 {
@@ -31,7 +28,7 @@ namespace OChatApp.Controllers
         [HttpPost(TOKEN, Name = nameof(GetToken))]
         public async Task<IActionResult> GetToken(
             [FromBody] LoginModel loginModel,
-            [FromServices] OChatAppContext dbContext,
+            [FromServices] OChatContext dbContext,
             [FromServices] SignInManager<ApplicationUser> signInManager,
             [FromServices] IConfiguration configuration)
         {

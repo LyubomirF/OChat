@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace OChat
+namespace OChat.Domain
 {
     public class Connection
     {

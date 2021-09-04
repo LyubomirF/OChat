@@ -1,15 +1,7 @@
-﻿using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
-using OChatApp.Data;
+﻿using Microsoft.AspNetCore.Mvc;
+using OChat.Services;
 using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Threading.Tasks;
-using OChatApp.Areas.Identity.Data;
-using OChatApp.Services;
-using OChatApp;
-using Microsoft.AspNetCore.Authorization;
 
 namespace OChatApp.Controllers
 {

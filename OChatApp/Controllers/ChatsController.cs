@@ -1,12 +1,10 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using OChatApp.Models;
-using OChatApp.Services;
 using System;
-using System.Collections.Generic;
 using System.Threading.Tasks;
 using OChatApp.Models.QueryParameters;
-using OChat;
+using OChat.Services;
 
 namespace OChatApp.Controllers
 {
@@ -34,7 +32,7 @@ namespace OChatApp.Controllers
         [HttpGet(HISTORY, Name = nameof(GetChatRoomMessageHistory))]
         public async Task<IActionResult> GetChatRoomMessageHistory(Guid chatId, [FromQuery] QueryStringParams chatQueryParams)
         {
-            var messages = await _chatService.GetChatRoomMessageHistory(chatId, chatQueryParams);
+            var messages = await _chatService.GetChatRoomMessageHistory(chatId, chatQueryParams.Page, chatQueryParams.PageSize);
             return Ok(messages);
         }
 

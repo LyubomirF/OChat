@@ -1,14 +1,10 @@
 ﻿using Microsoft.AspNetCore.Diagnostics;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using OChatApp.Models;
-using OChatApp.Repositories.Exceptions;
+using OChat.Infrastructure.Exceptions;
+using OChat.Services.Exceptions;
 using OChatApp.Services;
-using OChatApp.Services.Exceptions;
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 
 namespace OChatApp.Controllers
 {

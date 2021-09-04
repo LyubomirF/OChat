@@ -1,20 +1,11 @@
-using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
-using Microsoft.AspNetCore.Identity;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.SpaServices.ReactDevelopmentServer;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
-using Microsoft.IdentityModel.Tokens;
-using OChatApp.Areas.Identity.Data;
-using OChatApp.Hubs;
-using OChatApp.Repositories;
-using OChatApp.Repositories.Interfaces;
-using OChatApp.Services;
-using System.Text;
-using System.Threading.Tasks;
+using OChat.Infrastructure.Hubs;
+using OChat.Infrastructure.Repositories;
+using OChat.Infrastructure.Repositories.Interfaces;
 
 namespace OChatApp
 {

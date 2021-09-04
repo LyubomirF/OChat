@@ -1,0 +1,11 @@
+E:\Random c# stuff\RandomProject\OChatApp\OChat\bin\Debug\net5.0\OChat.Domain.deps.json
+E:\Random c# stuff\RandomProject\OChatApp\OChat\bin\Debug\net5.0\OChat.Domain.dll
+E:\Random c# stuff\RandomProject\OChatApp\OChat\bin\Debug\net5.0\ref\OChat.Domain.dll
+E:\Random c# stuff\RandomProject\OChatApp\OChat\bin\Debug\net5.0\OChat.Domain.pdb
+E:\Random c# stuff\RandomProject\OChatApp\OChat\obj\Debug\net5.0\OChat.Domain.GeneratedMSBuildEditorConfig.editorconfig
+E:\Random c# stuff\RandomProject\OChatApp\OChat\obj\Debug\net5.0\OChat.Domain.AssemblyInfoInputs.cache
+E:\Random c# stuff\RandomProject\OChatApp\OChat\obj\Debug\net5.0\OChat.Domain.AssemblyInfo.cs
+E:\Random c# stuff\RandomProject\OChatApp\OChat\obj\Debug\net5.0\OChat.Domain.csproj.CoreCompileInputs.cache
+E:\Random c# stuff\RandomProject\OChatApp\OChat\obj\Debug\net5.0\OChat.Domain.dll
+E:\Random c# stuff\RandomProject\OChatApp\OChat\obj\Debug\net5.0\ref\OChat.Domain.dll
+E:\Random c# stuff\RandomProject\OChatApp\OChat\obj\Debug\net5.0\OChat.Domain.pdb

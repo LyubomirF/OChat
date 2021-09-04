@@ -1,0 +1,15 @@
+E:\Random c# stuff\RandomProject\OChatApp\OChat.Infrastructure\obj\Debug\net5.0\OChat.Infrastructure.GeneratedMSBuildEditorConfig.editorconfig
+E:\Random c# stuff\RandomProject\OChatApp\OChat.Infrastructure\obj\Debug\net5.0\OChat.Infrastructure.AssemblyInfoInputs.cache
+E:\Random c# stuff\RandomProject\OChatApp\OChat.Infrastructure\obj\Debug\net5.0\OChat.Infrastructure.AssemblyInfo.cs
+E:\Random c# stuff\RandomProject\OChatApp\OChat.Infrastructure\obj\Debug\net5.0\OChat.Infrastructure.csproj.CoreCompileInputs.cache
+E:\Random c# stuff\RandomProject\OChatApp\OChat.Infrastructure\bin\Debug\net5.0\OChat.Infrastructure.deps.json
+E:\Random c# stuff\RandomProject\OChatApp\OChat.Infrastructure\bin\Debug\net5.0\OChat.Infrastructure.dll
+E:\Random c# stuff\RandomProject\OChatApp\OChat.Infrastructure\bin\Debug\net5.0\ref\OChat.Infrastructure.dll
+E:\Random c# stuff\RandomProject\OChatApp\OChat.Infrastructure\bin\Debug\net5.0\OChat.Infrastructure.pdb
+E:\Random c# stuff\RandomProject\OChatApp\OChat.Infrastructure\bin\Debug\net5.0\OChat.Domain.dll
+E:\Random c# stuff\RandomProject\OChatApp\OChat.Infrastructure\bin\Debug\net5.0\OChat.Domain.pdb
+E:\Random c# stuff\RandomProject\OChatApp\OChat.Infrastructure\obj\Debug\net5.0\OChat.Infrastructure.csproj.AssemblyReference.cache
+E:\Random c# stuff\RandomProject\OChatApp\OChat.Infrastructure\obj\Debug\net5.0\OChat.Infrastructure.csproj.CopyComplete
+E:\Random c# stuff\RandomProject\OChatApp\OChat.Infrastructure\obj\Debug\net5.0\OChat.Infrastructure.dll
+E:\Random c# stuff\RandomProject\OChatApp\OChat.Infrastructure\obj\Debug\net5.0\ref\OChat.Infrastructure.dll
+E:\Random c# stuff\RandomProject\OChatApp\OChat.Infrastructure\obj\Debug\net5.0\OChat.Infrastructure.pdb

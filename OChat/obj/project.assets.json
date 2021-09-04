@@ -13,9 +13,9 @@
   "project": {
     "version": "1.0.0",
     "restore": {
-      "projectUniqueName": "E:\\Random c# stuff\\RandomProject\\OChatApp\\OChat\\OChat.csproj",
-      "projectName": "OChat",
-      "projectPath": "E:\\Random c# stuff\\RandomProject\\OChatApp\\OChat\\OChat.csproj",
+      "projectUniqueName": "E:\\Random c# stuff\\RandomProject\\OChatApp\\OChat\\OChat.Domain.csproj",
+      "projectName": "OChat.Domain",
+      "projectPath": "E:\\Random c# stuff\\RandomProject\\OChatApp\\OChat\\OChat.Domain.csproj",
       "packagesPath": "C:\\Users\\lubo9\\.nuget\\packages\\",
       "outputPath": "E:\\Random c# stuff\\RandomProject\\OChatApp\\OChat\\obj\\",
       "projectStyle": "PackageReference",

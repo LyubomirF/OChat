@@ -3,10 +3,7 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.IdentityModel.Tokens;
-using OChatApp.Areas.Identity.Data;
-using System;
-using System.Collections.Generic;
-using System.Linq;
+using OChat.Infrastructure.Identity;
 using System.Text;
 using System.Threading.Tasks;
 
