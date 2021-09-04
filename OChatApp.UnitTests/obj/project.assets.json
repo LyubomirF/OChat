@@ -10344,8 +10344,8 @@
     },
     "OChat.Domain/1.0.0": {
       "type": "project",
-      "path": "../OChat/OChat.Domain.csproj",
-      "msbuildProject": "../OChat/OChat.Domain.csproj"
+      "path": "../OChat.Domain/OChat.Domain.csproj",
+      "msbuildProject": "../OChat.Domain/OChat.Domain.csproj"
     },
     "OChat.Infrastructure/1.0.0": {
       "type": "project",

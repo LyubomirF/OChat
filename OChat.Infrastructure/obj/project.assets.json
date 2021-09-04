@@ -2656,8 +2656,8 @@
     },
     "OChat.Domain/1.0.0": {
       "type": "project",
-      "path": "../OChat/OChat.Domain.csproj",
-      "msbuildProject": "../OChat/OChat.Domain.csproj"
+      "path": "../OChat.Domain/OChat.Domain.csproj",
+      "msbuildProject": "../OChat.Domain/OChat.Domain.csproj"
     }
   },
   "projectFileDependencyGroups": {
@@ -2697,8 +2697,8 @@
         "net5.0": {
           "targetAlias": "net5.0",
           "projectReferences": {
-            "E:\\Random c# stuff\\RandomProject\\OChatApp\\OChat\\OChat.Domain.csproj": {
-              "projectPath": "E:\\Random c# stuff\\RandomProject\\OChatApp\\OChat\\OChat.Domain.csproj"
+            "E:\\Random c# stuff\\RandomProject\\OChatApp\\OChat.Domain\\OChat.Domain.csproj": {
+              "projectPath": "E:\\Random c# stuff\\RandomProject\\OChatApp\\OChat.Domain\\OChat.Domain.csproj"
             }
           }
         }

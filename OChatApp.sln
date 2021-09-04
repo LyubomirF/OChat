@@ -4,12 +4,21 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 VisualStudioVersion = 16.0.31424.327
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "OChatApp", "OChatApp\OChatApp.csproj", "{125540A2-FAC8-440C-A0F0-CCB5BA5F5B58}"
+	ProjectSection(ProjectDependencies) = postProject
+		{300E5547-0716-4156-9441-4865313DD6D3} = {300E5547-0716-4156-9441-4865313DD6D3}
+	EndProjectSection
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "OChatApp.UnitTests", "OChatApp.UnitTests\OChatApp.UnitTests.csproj", "{F9DD3D1B-34E4-49AC-9DCB-DA2AA2A8F5A7}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "OChat.Services", "OChat.Services\OChat.Services.csproj", "{396BB89E-ECFE-48D4-BD85-93AEE563E0F0}"
+	ProjectSection(ProjectDependencies) = postProject
+		{300E5547-0716-4156-9441-4865313DD6D3} = {300E5547-0716-4156-9441-4865313DD6D3}
+	EndProjectSection
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "OChat.Infrastructure", "OChat.Infrastructure\OChat.Infrastructure.csproj", "{CD71A443-DCF8-426D-83F4-7948A36FBEA3}"
+	ProjectSection(ProjectDependencies) = postProject
+		{300E5547-0716-4156-9441-4865313DD6D3} = {300E5547-0716-4156-9441-4865313DD6D3}
+	EndProjectSection
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "OChat.Domain", "OChat.Domain\OChat.Domain.csproj", "{300E5547-0716-4156-9441-4865313DD6D3}"
 EndProject
