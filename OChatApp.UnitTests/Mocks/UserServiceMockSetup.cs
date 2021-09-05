@@ -1,7 +1,6 @@
 ﻿using Moq;
-using OChatApp.Areas.Identity.Data;
-using OChatApp.Repositories;
-using OChatApp.Repositories.Exceptions;
+using OChat.Infrastructure.Exceptions;
+using OChat.Infrastructure.Repositories.Interfaces;
 using OChatApp.UnitTests.Helper;
 using System;
 using System.Collections.Generic;
@@ -11,7 +10,7 @@ using System.Threading.Tasks;
 
 namespace OChatApp.UnitTests.Mocks
 {
-    using static OChatApp.Services.Exceptions.ExceptionMessages;
+    using static OChat.Infrastructure.Exceptions.ExceptionMessages;
 
     class UserServiceMockSetup
     {
@@ -20,11 +19,11 @@ namespace OChatApp.UnitTests.Mocks
         public UserServiceMockSetup()
             => _db = new Database();
 
-        public Mock<IUserRepository> CreateMock_GetUserFriends(string userId)
+        public Mock<IUserRepository> CreateMock_GetUserFriends(Guid userId)
         {
             var userRepository = new Mock<IUserRepository>();
             userRepository
-                .Setup(x => x.GetUserWithFriendsAsync(userId, USER_NOT_FOUND))
+                .Setup(x => x.GetUserWithFriendsAsync(userId))
                 .ReturnsAsync(() =>
                 {
                     var user = _db.Users.SingleOrDefault(x => x.Id == userId);
@@ -38,7 +37,7 @@ namespace OChatApp.UnitTests.Mocks
             return userRepository;
         }
 
-        public Mock<IUserRepository> CreateMock_SendFriendRequest(string userId, string targetUserId)
+        public Mock<IUserRepository> CreateMock_SendFriendRequest(Guid userId, Guid targetUserId)
         {
             var user = _db.Users.SingleOrDefault(x => x.Id == userId);
             var targetUser = _db.Users.SingleOrDefault(x => x.Id == targetUserId);
@@ -46,19 +45,19 @@ namespace OChatApp.UnitTests.Mocks
             var userRepository = new Mock<IUserRepository>();
 
             userRepository
-                .Setup(x => x.GetByIdAsync(userId, USER_NOT_FOUND))
+                .Setup(x => x.GetEntityByIdAsync(userId))
                 .ReturnsAsync(user);
 
             userRepository
-                .Setup(x => x.GetUserWithFriendRequestsAsync(targetUserId, TARGET_NOT_FOUND))
+                .Setup(x => x.GetUserWithFriendRequestsAsync(targetUserId))
                 .ReturnsAsync(targetUser);
 
-            userRepository.Setup(x => x.Update(targetUser));
+            userRepository.Setup(x => x.SaveEntityAsync(targetUser));
 
             return userRepository;
         }
 
-        public Mock<IUserRepository> CreateMock_AcceptFriendRequest(string userId, string fromUserId)
+        public Mock<IUserRepository> CreateMock_AcceptFriendRequest(Guid userId, Guid fromUserId)
         {
             var fromUser = _db.Users.SingleOrDefault(x => x.Id == fromUserId);
             var user = _db.Users.SingleOrDefault(x => x.Id == userId);
@@ -66,35 +65,35 @@ namespace OChatApp.UnitTests.Mocks
             var userRepository = new Mock<IUserRepository>();
 
             userRepository
-                .Setup(x => x.GetUserWithFriendsAndFriendRequestsAsync(userId, USER_NOT_FOUND))
+                .Setup(x => x.GetUserWithFriendsAndFriendRequestsAsync(userId))
                 .ReturnsAsync(user);
 
             userRepository
-                .Setup(x => x.GetUserWithFriendsAsync(fromUserId, SENDER_NOT_FOUND))
+                .Setup(x => x.GetUserWithFriendsAsync(fromUserId))
                 .ReturnsAsync(fromUser);
 
-            userRepository.Setup(x => x.Update(user));
-            userRepository.Setup(x => x.Update(fromUser));
+            userRepository.Setup(x => x.SaveEntityAsync(user));
+            userRepository.Setup(x => x.SaveEntityAsync(fromUser));
 
             return userRepository;
         }
 
-        public Mock<IUserRepository> CreateMock_RejectFriendRequest(string userId)
+        public Mock<IUserRepository> CreateMock_RejectFriendRequest(Guid userId)
         {
             var user = _db.Users.SingleOrDefault(x => x.Id == userId);
 
             var userRepository = new Mock<IUserRepository>();
 
             userRepository
-                .Setup(x => x.GetUserWithFriendRequestsAsync(userId, USER_NOT_FOUND))
+                .Setup(x => x.GetUserWithFriendRequestsAsync(userId))
                 .ReturnsAsync(user);
 
-            userRepository.Setup(x => x.Update(user));
+            userRepository.Setup(x => x.SaveEntityAsync(user));
 
             return userRepository;
         }
 
-        public Mock<IUserRepository> CreateMock_RemoveFriend(string userId, string targetUserId)
+        public Mock<IUserRepository> CreateMock_RemoveFriend(Guid userId, Guid targetUserId)
         {
             var user = _db.Users.SingleOrDefault(x => x.Id == userId);
             var targetUser = _db.Users.SingleOrDefault(x => x.Id == targetUserId);
@@ -102,27 +101,27 @@ namespace OChatApp.UnitTests.Mocks
             var userRepository = new Mock<IUserRepository>();
 
             userRepository
-                .Setup(x => x.GetUserWithFriendsAsync(userId, USER_NOT_FOUND))
+                .Setup(x => x.GetUserWithFriendsAsync(userId))
                 .ReturnsAsync(user);
 
             userRepository
-                .Setup(x => x.GetUserWithFriendsAsync(targetUserId, TARGET_NOT_FOUND))
+                .Setup(x => x.GetUserWithFriendsAsync(targetUserId))
                 .ReturnsAsync(targetUser);
 
-            userRepository.Setup(x => x.Update(user));
-            userRepository.Setup(x => x.Update(targetUser));
+            userRepository.Setup(x => x.SaveEntityAsync(user));
+            userRepository.Setup(x => x.SaveEntityAsync(targetUser));
 
             return userRepository;
         }
 
-        public Mock<IUserRepository> CreateMock_GetPendingRequests(string userId)
+        public Mock<IUserRepository> CreateMock_GetPendingRequests(Guid userId)
         {
             var user = _db.Users.SingleOrDefault(x => x.Id == userId);
 
             var userRepository = new Mock<IUserRepository>();
 
             userRepository
-                .Setup(x => x.GetUserWithPendingRequestsAsync(userId, USER_NOT_FOUND))
+                .Setup(x => x.GetUserWithPendingRequestsAsync(userId))
                 .ReturnsAsync(user);
 
             return userRepository;

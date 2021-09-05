@@ -5,17 +5,12 @@ using System.Text;
 using System.Threading.Tasks;
 using NUnit.Framework;
 using Moq;
-using OChatApp.Repositories;
 using Microsoft.AspNetCore.SignalR;
-using OChatApp.Hubs;
-using OChatApp.Services;
 using OChatApp.Models.QueryParameters;
 using OChatApp.UnitTests.Helper;
-using OChatApp.Repositories.Exceptions;
 
 namespace OChatApp.UnitTests
 {
-    using static OChatApp.Services.Exceptions.ExceptionMessages;
 
     [TestFixture]
     class ChatServiceTests

@@ -1,4 +1,4 @@
-﻿using OChatApp.Areas.Identity.Data;
+﻿using OChat.Domain;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -9,49 +9,37 @@ namespace OChatApp.UnitTests.Helper
 {
     class Database
     {
-        private static readonly List<OChatAppUser> _users = new()
+        private static readonly List<User> _users = new()
         {
-                new OChatAppUser()
+                new User()
                 {
-                    Id = "1",
-                    UserName = "Richard",
-                    Friends = new List<OChatAppUser>()
-                    {
-                        new OChatAppUser() { Id = "2", UserName = "Scot" },
-                        new OChatAppUser() { Id = "3", UserName = "Greg" }
-                    }
+                    Id = Guid.NewGuid(),
+                    Username = "Richard",
+                    Friends = new List<User>()
                 },
-                new OChatAppUser()
+                new User()
                 {
-                    Id = "2",
-                    UserName = "Scot",
-                    Friends = new List<OChatAppUser>()
-                    {
-                        new OChatAppUser() { Id = "1", UserName = "Richard" },
-                        new OChatAppUser() { Id = "3", UserName = "Greg" }
-                    }
+                    Id = Guid.NewGuid(),
+                    Username = "Scot",
+                    Friends = new List<User>()
                 },
-                new OChatAppUser()
+                new User()
                 {
-                    Id = "3",
-                    UserName = "Greg",
-                    Friends = new List<OChatAppUser>()
-                    {
-                        new OChatAppUser() { Id = "1", UserName = "Richard" },
-                        new OChatAppUser() { Id = "2", UserName = "Scot" }
-                    }
+                    Id = Guid.NewGuid(),
+                    Username = "Greg",
+                    Friends = new List<User>()
                 },
-                new OChatAppUser()
+                new User()
                 {
-                    Id = "4",
-                    UserName = "John",
-                    Friends = new List<OChatAppUser>(),
+                    Id = Guid.NewGuid(),
+                    Username = "John",
+                    Friends = new List<User>(),
                 },
-                new OChatAppUser()
+                new User()
                 {
-                    Id = "5",
-                    UserName = "Susan",
-                    Friends = new List<OChatAppUser>(),
+                    Id = Guid.NewGuid(),
+                    Username = "Susan",
+                    Friends = new List<User>(),
                 },
             };
 
@@ -59,9 +47,9 @@ namespace OChatApp.UnitTests.Helper
         {
             new ChatRoom()
             {
-                Id = "1",
+                Id = Guid.NewGuid(),
                 Name = "Richard, Scot",
-                Users = new List<OChatAppUser>()
+                Participants = new List<User>()
                 {
                     _users[0],
                     _users[1]
@@ -70,41 +58,50 @@ namespace OChatApp.UnitTests.Helper
         };
         public Database()
         {
+            _users[0].Friends.Add(_users[1]);
+            _users[0].Friends.Add(_users[2]);
+
+            _users[1].Friends.Add(_users[0]);
+            _users[1].Friends.Add(_users[1]);
+
+            _users[2].Friends.Add(_users[0]);
+            _users[2].Friends.Add(_users[1]);
+
             //User service tests setup
             _users[2].FriendRequests = new List<FriendRequest>
             {
                 new FriendRequest()
                 {
-                    Id = "1",
-                    Status = RequestStatus.Pending,
-                    FromUser = _users[3]
+                    Id = Guid.NewGuid(),
+                    Status = FriendRequestStatus.Pending,
+                    From = _users[3]
                 },
                 new FriendRequest()
                 {
-                    Id = "2",
-                    Status = RequestStatus.Pending,
-                    FromUser = _users[4]
+                    Id = Guid.NewGuid(),
+                    Status = FriendRequestStatus.Pending,
+                    From = _users[4]
                 }
             };
             _users[0].FriendRequests = new List<FriendRequest>
             {
                 new FriendRequest()
                 {
-                    Id = "0",
-                    Status = RequestStatus.Accepted,
-                    FromUser = _users[1]
+                    Id = Guid.NewGuid(),
+                    Status = FriendRequestStatus.Accepted,
+                    From = _users[1]
                 },
                 new FriendRequest()
                 {
-                    Id = "3",
-                    Status = RequestStatus.Pending,
-                    FromUser = _users[3]
+                    Id = Guid.NewGuid(),
+                    Status = FriendRequestStatus.Pending,
+                    From = _users[3]
                 },
                 new FriendRequest()
                 {
-                    Id = "4",
-                    Status = RequestStatus.Pending,
-                    FromUser = _users[4]
+                    Id = Guid.NewGuid(),
+                    Status = FriendRequestStatus.Pending,
+                    From = _users[4]
                 }
             };
 
@@ -113,36 +110,36 @@ namespace OChatApp.UnitTests.Helper
             {
                 new Message()
                 {
-                    Id = "1",
-                    From = _users[0],
+                    Id = Guid.NewGuid(),
+                    Sender = _users[0],
                     Content = "Hello.",
                     SentOn = new DateTime(2021, 1, 1, 13, 15, 30)
                 },
                 new Message()
                 {
-                    Id = "2",
-                    From = _users[1],
+                    Id = Guid.NewGuid(),
+                    Sender = _users[1],
                     Content = "Hi.",
                     SentOn = new DateTime(2021, 1, 1, 13, 15, 40)
                 },
                 new Message()
                 {
-                    Id = "3",
-                    From = _users[0],
+                    Id = Guid.NewGuid(),
+                    Sender = _users[0],
                     Content = "What's up.",
                     SentOn = new DateTime(2021, 1, 1, 13, 16, 0)
                 },
                 new Message()
                 {
-                    Id = "4",
-                    From = _users[1],
+                    Id = Guid.NewGuid(),
+                    Sender = _users[1],
                     Content = "Nothing much.",
                     SentOn = new DateTime(2021, 1, 1, 13, 16, 20)
                 }
             };
         }
 
-        public List<OChatAppUser> Users => _users;
+        public List<User> Users => _users;
 
         public List<ChatRoom> Chats => _chats;
 
