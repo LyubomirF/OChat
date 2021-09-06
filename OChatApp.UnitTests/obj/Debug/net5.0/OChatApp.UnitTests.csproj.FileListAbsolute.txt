@@ -1,6 +1,0 @@
-E:\Random c# stuff\RandomProject\OChatApp\OChatApp.UnitTests\bin\Debug\net5.0\CoverletSourceRootsMapping
-E:\Random c# stuff\RandomProject\OChatApp\OChatApp.UnitTests\obj\Debug\net5.0\OChatApp.UnitTests.csproj.AssemblyReference.cache
-E:\Random c# stuff\RandomProject\OChatApp\OChatApp.UnitTests\obj\Debug\net5.0\OChatApp.UnitTests.GeneratedMSBuildEditorConfig.editorconfig
-E:\Random c# stuff\RandomProject\OChatApp\OChatApp.UnitTests\obj\Debug\net5.0\OChatApp.UnitTests.AssemblyInfoInputs.cache
-E:\Random c# stuff\RandomProject\OChatApp\OChatApp.UnitTests\obj\Debug\net5.0\OChatApp.UnitTests.AssemblyInfo.cs
-E:\Random c# stuff\RandomProject\OChatApp\OChatApp.UnitTests\obj\Debug\net5.0\OChatApp.UnitTests.csproj.CoreCompileInputs.cache
