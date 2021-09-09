@@ -14,11 +14,6 @@ namespace OChatApp.UnitTests.Mocks
 
     class UserServiceMockSetup
     {
-        private readonly Database _db;
-
-        public UserServiceMockSetup()
-            => _db = new Database();
-
         public Mock<IUserRepository> CreateMock_GetUserFriends(Guid userId)
         {
             var userRepository = new Mock<IUserRepository>();
@@ -26,7 +21,7 @@ namespace OChatApp.UnitTests.Mocks
                 .Setup(x => x.GetUserWithFriendsAsync(userId))
                 .ReturnsAsync(() =>
                 {
-                    var user = _db.Users.SingleOrDefault(x => x.Id == userId);
+                    var user = Database.Users.SingleOrDefault(x => x.Id == userId);
 
                     if (user == null)
                         throw new NotFoundException(USER_NOT_FOUND);
@@ -39,8 +34,8 @@ namespace OChatApp.UnitTests.Mocks
 
         public Mock<IUserRepository> CreateMock_SendFriendRequest(Guid userId, Guid targetUserId)
         {
-            var user = _db.Users.SingleOrDefault(x => x.Id == userId);
-            var targetUser = _db.Users.SingleOrDefault(x => x.Id == targetUserId);
+            var user = Database.Users.SingleOrDefault(x => x.Id == userId);
+            var targetUser = Database.Users.SingleOrDefault(x => x.Id == targetUserId);
 
             var userRepository = new Mock<IUserRepository>();
 
@@ -59,8 +54,8 @@ namespace OChatApp.UnitTests.Mocks
 
         public Mock<IUserRepository> CreateMock_AcceptFriendRequest(Guid userId, Guid fromUserId)
         {
-            var fromUser = _db.Users.SingleOrDefault(x => x.Id == fromUserId);
-            var user = _db.Users.SingleOrDefault(x => x.Id == userId);
+            var fromUser = Database.Users.SingleOrDefault(x => x.Id == fromUserId);
+            var user = Database.Users.SingleOrDefault(x => x.Id == userId);
 
             var userRepository = new Mock<IUserRepository>();
 
@@ -78,9 +73,9 @@ namespace OChatApp.UnitTests.Mocks
             return userRepository;
         }
 
-        public Mock<IUserRepository> CreateMock_RejectFriendRequest(Guid userId)
+        public Mock<IUserRepository> CreateMock_IgnoreFriendRequest(Guid userId)
         {
-            var user = _db.Users.SingleOrDefault(x => x.Id == userId);
+            var user = Database.Users.SingleOrDefault(x => x.Id == userId);
 
             var userRepository = new Mock<IUserRepository>();
 
@@ -95,8 +90,8 @@ namespace OChatApp.UnitTests.Mocks
 
         public Mock<IUserRepository> CreateMock_RemoveFriend(Guid userId, Guid targetUserId)
         {
-            var user = _db.Users.SingleOrDefault(x => x.Id == userId);
-            var targetUser = _db.Users.SingleOrDefault(x => x.Id == targetUserId);
+            var user = Database.Users.SingleOrDefault(x => x.Id == userId);
+            var targetUser = Database.Users.SingleOrDefault(x => x.Id == targetUserId);
 
             var userRepository = new Mock<IUserRepository>();
 
@@ -116,7 +111,7 @@ namespace OChatApp.UnitTests.Mocks
 
         public Mock<IUserRepository> CreateMock_GetPendingRequests(Guid userId)
         {
-            var user = _db.Users.SingleOrDefault(x => x.Id == userId);
+            var user = Database.Users.SingleOrDefault(x => x.Id == userId);
 
             var userRepository = new Mock<IUserRepository>();
 

@@ -20,22 +20,21 @@ namespace OChatApp.UnitTests
     class UserServiceTests
     {
         private UserServiceMockSetup _mockSetup;
-        private Database _db;
 
         [SetUp]
         public void SetUp()
         {
-            _db = new Database();
             _mockSetup = new UserServiceMockSetup();
         }
 
         [Test]
+        [TestCaseSource(typeof(TestInputs), nameof(TestInputs.GetInputFor_GetUserFriends_ReturnsCollectionOfFriends))]
         public async Task GetUserFriends_ReturnsCollectionOfFriends(Guid userId)
         {
             //Arrange
             var userRepositoryMock = _mockSetup.CreateMock_GetUserFriends(userId);
             var userService = new UserService(userRepositoryMock.Object);
-            var actual = _db.Users.SingleOrDefault(x => x.Id == userId).Friends;
+            var actual = Database.Users.SingleOrDefault(x => x.Id == userId).Friends;
 
             //Act
             var friends = await userService.GetUserFriends(userId);
@@ -52,7 +51,7 @@ namespace OChatApp.UnitTests
         }
 
         [Test]
-        [TestCase("6")]
+        [TestCaseSource(typeof(TestInputs), nameof(TestInputs.GetInputFor_GetUserFriends_ThrowsNotFoundException))]
         public void GetUserFriends_ThrowsNotFoundException(Guid userId)
         {
             //Arrage
@@ -64,7 +63,7 @@ namespace OChatApp.UnitTests
         }
 
         [Test]
-        [TestCase("5")]
+        [TestCaseSource(typeof(TestInputs), nameof(TestInputs.GetInputFor_GetUserFriends_ThrowsEmptyCollectionException))]
         public void GetUserFriends_ThrowsEmptyCollectionException(Guid userId)
         {
             //Arrage
@@ -77,12 +76,12 @@ namespace OChatApp.UnitTests
 
 
         [Test]
-        [TestCase("4", "2")]
+        [TestCaseSource(typeof(TestInputs), nameof(TestInputs.GetInputFor_SendFriendRequest_ValidCall))]
         public async Task SendFriendRequest_ValidCall(Guid userId, Guid targetUserId)
         {
             //Arrange
             var userRepositoryMock = _mockSetup.CreateMock_SendFriendRequest(userId, targetUserId);
-            var targetUser = _db.Users.SingleOrDefault(x => x.Id == targetUserId);
+            var targetUser = Database.Users.SingleOrDefault(x => x.Id == targetUserId);
             var userService = new UserService(userRepositoryMock.Object);
 
             //Act
@@ -94,13 +93,13 @@ namespace OChatApp.UnitTests
         }
 
         [Test]
-        [TestCase("3", "1", "4")]
+        [TestCaseSource(typeof(TestInputs), nameof(TestInputs.GetInputFor_AcceptFriendRequest_ValidCall))]
         public async Task AcceptFriendRequest_ValidCall(Guid userId, Guid requestId, Guid fromUserId)
         {
             //Arrange
             var userRepositoryMock = _mockSetup.CreateMock_AcceptFriendRequest(userId, fromUserId);
-            var user = _db.Users.SingleOrDefault(x => x.Id == userId);
-            var fromUser = _db.Users.SingleOrDefault(x => x.Id == fromUserId);
+            var user = Database.Users.SingleOrDefault(x => x.Id == userId);
+            var fromUser = Database.Users.SingleOrDefault(x => x.Id == fromUserId);
             var userService = new UserService(userRepositoryMock.Object);
 
             //Act
@@ -114,7 +113,7 @@ namespace OChatApp.UnitTests
         }
 
         [Test]
-        [TestCase("3", "3", "4")]
+        [TestCaseSource(typeof(TestInputs), nameof(TestInputs.GetIntputFor_AcceptFriendRequest_InvalidRequest_ThrowsNotFoundException))]
         public void AcceptFriendRequest_InvalidRequest_ThrowsNotFoundException(Guid userId, Guid requestId, Guid fromUserId)
         {
             //Arrage
@@ -126,7 +125,7 @@ namespace OChatApp.UnitTests
         }
 
         [Test]
-        [TestCase("1", "0", "2")]
+        [TestCaseSource(typeof(TestInputs), nameof(TestInputs.GetInputFor_AcceptFriendRequest_InvalidRequest_ThrowsFriendRequestException))]
         public void AcceptFriendRequest_InvalidRequest_ThrowsFriendRequestException(Guid userId, Guid requestId, Guid fromUserId)
         {
             //Arrage
@@ -138,12 +137,12 @@ namespace OChatApp.UnitTests
         }
 
         [Test]
-        [TestCase("3", "2")]
+        [TestCaseSource(typeof(TestInputs), nameof(TestInputs.GetInputFor_IgnoreFriendRequest_ValidCall))]
         public async Task IgnoreFriendRequest_ValidCall(Guid userId, Guid requestId)
         {
             //Arrange
-            var userRepositoryMock = _mockSetup.CreateMock_RejectFriendRequest(userId);
-            var user = _db.Users.SingleOrDefault(x => x.Id == userId);
+            var userRepositoryMock = _mockSetup.CreateMock_IgnoreFriendRequest(userId);
+            var user = Database.Users.SingleOrDefault(x => x.Id == userId);
             var userService = new UserService(userRepositoryMock.Object);
 
             //Act
@@ -155,11 +154,11 @@ namespace OChatApp.UnitTests
         }
 
         [Test]
-        [TestCase("3", "3")]
+        [TestCaseSource(typeof(TestInputs), nameof(TestInputs.GetInputFor_IgnoreFriendRequest_InvalidRequest_ThrowsNotFoundException))]
         public void IgnoreFriendRequest_InvalidRequest_ThrowsNotFoundException(Guid userId, Guid requestId)
         {
             //Arrage
-            var userRepositoryMock = _mockSetup.CreateMock_RejectFriendRequest(userId);
+            var userRepositoryMock = _mockSetup.CreateMock_IgnoreFriendRequest(userId);
             var userService = new UserService(userRepositoryMock.Object);
 
             //Act/Assert
@@ -167,11 +166,11 @@ namespace OChatApp.UnitTests
         }
 
         [Test]
-        [TestCase("1", "0")]
+        [TestCaseSource(typeof(TestInputs), nameof(TestInputs.GetInputFor_IgnoreFriendRequest_InvalidRequest_ThrowsFriendRequestException))]
         public void IgnoreFriendRequest_InvalidRequest_ThrowsFriendRequestException(Guid userId, Guid requestId)
         {
             //Arrage
-            var userRepositoryMock = _mockSetup.CreateMock_RejectFriendRequest(userId);
+            var userRepositoryMock = _mockSetup.CreateMock_IgnoreFriendRequest(userId);
             var userService = new UserService(userRepositoryMock.Object);
 
             //Act/Assert
@@ -180,13 +179,13 @@ namespace OChatApp.UnitTests
 
 
         [Test]
-        [TestCase("1", "2")]
+        [TestCaseSource(typeof(TestInputs), nameof(TestInputs.GetInputFor_RemoveFriend_ValidCall))]
         public async Task RemoveFriend_ValidCall(Guid userId, Guid targetUserId)
         {
             //Arrage
             var userRepositoryMock = _mockSetup.CreateMock_RemoveFriend(userId, targetUserId);
-            var user = _db.Users.SingleOrDefault(x => x.Id == userId);
-            var targetUser = _db.Users.SingleOrDefault(x => x.Id == targetUserId);
+            var user = Database.Users.SingleOrDefault(x => x.Id == userId);
+            var targetUser = Database.Users.SingleOrDefault(x => x.Id == targetUserId);
             var userService = new UserService(userRepositoryMock.Object);
 
             //Act
@@ -200,13 +199,13 @@ namespace OChatApp.UnitTests
         }
 
         [Test]
-        [TestCase("1")]
+        [TestCaseSource(typeof(TestInputs), nameof(TestInputs.GetInputFor_GetPendingRequests_ValidCall))]
         public async Task GetPendingRequests_ValidCall(Guid userId)
         {
             //Arrange
             var userRepositoryMock = _mockSetup.CreateMock_GetPendingRequests(userId);
             var userService = new UserService(userRepositoryMock.Object);
-            var user = _db.Users.SingleOrDefault(x => x.Id == userId);
+            var user = Database.Users.SingleOrDefault(x => x.Id == userId);
 
             //Act
             var requests = await userService.GetPendingRequests(userId);
