@@ -4,7 +4,9 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using OChat.Infrastructure.Repositories;
+using OChat.Services;
 using OChat.Services.Hubs;
+using OChat.Services.Interfaces;
 using OChat.Services.Interfaces.Repositories;
 
 namespace OChatApp
@@ -22,6 +24,9 @@ namespace OChatApp
         {
             services.AddTransient<IUserRepository, UserRepository>();
             services.AddTransient<IChatRepository, ChatRepository>();
+
+            services.AddTransient<IUserService, UserService>();
+            services.AddTransient<IChatService, ChatService>();
 
             services.AddSignalR();
 

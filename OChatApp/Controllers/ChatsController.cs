@@ -4,7 +4,7 @@ using OChatApp.Models;
 using System;
 using System.Threading.Tasks;
 using OChatApp.Models.QueryParameters;
-using OChat.Services;
+using OChat.Services.Interfaces;
 
 namespace OChatApp.Controllers
 {
@@ -15,9 +15,9 @@ namespace OChatApp.Controllers
     [Authorize]
     public class ChatsController : ControllerBase
     {
-        private readonly ChatService _chatService;
+        private readonly IChatService _chatService;
 
-        public ChatsController(ChatService chatService)
+        public ChatsController(IChatService chatService)
         {
             _chatService = chatService;
         }
