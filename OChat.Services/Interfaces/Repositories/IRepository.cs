@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
-namespace OChat.Infrastructure.Repositories.Interfaces
+namespace OChat.Services.Interfaces.Repositories
 {
     public interface IRepository<TEntity> 
         where TEntity: class

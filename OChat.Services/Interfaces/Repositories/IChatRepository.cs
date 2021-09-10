@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Threading.Tasks;
 using OChat.Domain;
 
-namespace OChat.Infrastructure.Repositories.Interfaces
+namespace OChat.Services.Interfaces.Repositories
 {
     public interface IChatRepository : IRepository<ChatRoom>
     {

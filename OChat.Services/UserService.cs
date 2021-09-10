@@ -1,7 +1,7 @@
 ﻿using OChat.Domain;
-using OChat.Infrastructure.Repositories.Interfaces;
 using OChat.Services.Exceptions;
 using OChat.Services.Interfaces;
+using OChat.Services.Interfaces.Repositories;
 using System;
 using System.Collections.Generic;
 using System.Linq;

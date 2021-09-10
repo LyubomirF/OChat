@@ -3,9 +3,9 @@ using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
-using OChat.Infrastructure.Hubs;
 using OChat.Infrastructure.Repositories;
-using OChat.Infrastructure.Repositories.Interfaces;
+using OChat.Services.Hubs;
+using OChat.Services.Interfaces.Repositories;
 
 namespace OChatApp
 {

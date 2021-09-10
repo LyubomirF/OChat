@@ -6,7 +6,7 @@ using Microsoft.EntityFrameworkCore;
 using OChat.Domain;
 using OChat.Infrastructure.Exceptions;
 using OChat.Infrastructure.Persistance;
-using OChat.Infrastructure.Repositories.Interfaces;
+using OChat.Services.Interfaces.Repositories;
 
 namespace OChat.Infrastructure.Repositories
 {

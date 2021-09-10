@@ -14,6 +14,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\OChat.Domain\OChat.Domain.csproj" />
+    <ProjectReference Include="..\OChat.Services\OChat.Services.csproj" />
   </ItemGroup>
 
 </Project>

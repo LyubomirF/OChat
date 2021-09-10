@@ -10,7 +10,6 @@
 
   <ItemGroup>
     <ProjectReference Include="..\OChat.Domain\OChat.Domain.csproj" />
-    <ProjectReference Include="..\OChat.Infrastructure\OChat.Infrastructure.csproj" />
   </ItemGroup>
 
 </Project>

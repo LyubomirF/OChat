@@ -6,8 +6,8 @@ using System.Threading.Tasks;
 using OChat.Domain;
 using OChat.Services.Interfaces;
 using OChat.Services.Exceptions;
-using OChat.Infrastructure.Repositories.Interfaces;
-using OChat.Infrastructure.Hubs;
+using OChat.Services.Interfaces.Repositories;
+using OChat.Services.Hubs;
 
 namespace OChat.Services
 {

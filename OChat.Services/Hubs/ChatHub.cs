@@ -4,10 +4,10 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.SignalR;
 using OChat.Domain;
-using OChat.Infrastructure.Exceptions;
-using OChat.Infrastructure.Repositories.Interfaces;
+using OChat.Services.Exceptions;
+using OChat.Services.Interfaces.Repositories;
 
-namespace OChat.Infrastructure.Hubs
+namespace OChat.Services.Hubs
 {
     [Authorize]
     public class ChatHub : Hub<IClient>
@@ -20,7 +20,7 @@ namespace OChat.Infrastructure.Hubs
         public override async Task OnConnectedAsync()
         {
             if (Context.UserIdentifier is null)
-                throw new NotFoundException("No logged user found.");
+                throw new UserNotFoundException("No logged user found.");
 
             var callerConnectionId = Context.ConnectionId;
 

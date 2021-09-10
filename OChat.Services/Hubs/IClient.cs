@@ -1,6 +1,6 @@
 ﻿using System.Threading.Tasks;
 
-namespace OChat.Infrastructure.Hubs
+namespace OChat.Services.Hubs
 {
     public interface IClient
     {

@@ -20,7 +20,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "OChat.Infrastructure", "OCh
 		{300E5547-0716-4156-9441-4865313DD6D3} = {300E5547-0716-4156-9441-4865313DD6D3}
 	EndProjectSection
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "OChat.Domain", "OChat.Domain\OChat.Domain.csproj", "{300E5547-0716-4156-9441-4865313DD6D3}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "OChat.Domain", "OChat.Domain\OChat.Domain.csproj", "{300E5547-0716-4156-9441-4865313DD6D3}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

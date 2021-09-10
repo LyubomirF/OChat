@@ -1,6 +1,7 @@
 ﻿using Moq;
 using OChat.Infrastructure.Exceptions;
-using OChat.Infrastructure.Repositories.Interfaces;
+using OChat.Services.Interfaces;
+using OChat.Services.Interfaces.Repositories;
 using OChatApp.UnitTests.Helper;
 using System;
 using System.Collections.Generic;
