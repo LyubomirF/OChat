@@ -1,13 +1,9 @@
 ﻿using Moq;
+using OChat.Core.Common.Repositories;
 using OChat.Infrastructure.Exceptions;
-using OChat.Services.Interfaces;
-using OChat.Services.Interfaces.Repositories;
 using OChatApp.UnitTests.Helper;
 using System;
-using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace OChatApp.UnitTests.Mocks
 {
@@ -122,6 +118,5 @@ namespace OChatApp.UnitTests.Mocks
 
             return userRepository;
         }
-
     }
 }

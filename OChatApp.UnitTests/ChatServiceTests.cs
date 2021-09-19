@@ -5,9 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 using NUnit.Framework;
 using Moq;
-using Microsoft.AspNetCore.SignalR;
-using OChatApp.Models.QueryParameters;
-using OChatApp.UnitTests.Helper;
+using OChat.Core.Common.Repositories;
 
 namespace OChatApp.UnitTests
 {
@@ -15,14 +13,6 @@ namespace OChatApp.UnitTests
     //[TestFixture]
     //class ChatServiceTests
     //{
-    //    private Database _db;
-
-    //    [SetUp]
-    //    public void SetUp()
-    //    {
-    //        _db = new Database();
-    //    }
-
     //    [Test]
     //    [TestCase("1")]
     //    public async Task GetChatRoomMessageHistory(string chatId)
@@ -30,7 +20,6 @@ namespace OChatApp.UnitTests
     //        //Arrange
     //        var userRepositoryMock = new Mock<IUserRepository>();
     //        var chatRepositoryMock = new Mock<IChatRepository>();
-    //        var hubContextMock = new Mock<IHubContext<ChatHub, IClient>>();
     //        var queryParams = new QueryStringParams();
 
     //        var chat = _db.Chats.SingleOrDefault(x => x.Id == chatId);

@@ -1,21 +1,18 @@
 ﻿using Moq;
 using NUnit.Framework;
+using OChat.Core.OChat.Services.InputModels;
+using OChat.Core.Services;
+using OChat.Core.Services.Exceptions;
 using OChat.Domain;
 using OChat.Infrastructure.Exceptions;
-using OChat.Services;
-using OChat.Services.Exceptions;
 using OChatApp.UnitTests.Helper;
 using OChatApp.UnitTests.Mocks;
 using System;
-using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 
 namespace OChatApp.UnitTests
 {
-    using static ExceptionMessages;
-
     [TestFixture]
     class UserServiceTests
     {
@@ -85,7 +82,7 @@ namespace OChatApp.UnitTests
             var userService = new UserService(userRepositoryMock.Object);
 
             //Act
-            await userService.SendFriendRequest(userId, targetUserId);
+            await userService.SendFriendRequest(new SendFriendRequestModel(userId, targetUserId));
 
             //Assert
             userRepositoryMock.Verify(x => x.SaveEntityAsync(targetUser), Times.Once);
@@ -103,7 +100,7 @@ namespace OChatApp.UnitTests
             var userService = new UserService(userRepositoryMock.Object);
 
             //Act
-            await userService.AcceptFriendRequest(userId, requestId);
+            await userService.AcceptFriendRequest(new AcceptFriendRequestModel(userId, requestId));
 
             //Assert
             userRepositoryMock.Verify(x => x.SaveEntityAsync(user), Times.Once);
@@ -121,7 +118,7 @@ namespace OChatApp.UnitTests
             var userService = new UserService(userRepositoryMock.Object);
 
             //Act/Assert
-            Assert.ThrowsAsync<FriendRequestException>(() => userService.AcceptFriendRequest(userId, requestId), "Request not found.");
+            Assert.ThrowsAsync<FriendRequestException>(() => userService.AcceptFriendRequest(new AcceptFriendRequestModel(userId, requestId)), "Request not found.");
         }
 
         [Test]
@@ -133,7 +130,9 @@ namespace OChatApp.UnitTests
             var userService = new UserService(userRepositoryMock.Object);
 
             //Act/Assert
-            Assert.ThrowsAsync<FriendRequestException>(() => userService.AcceptFriendRequest(userId, requestId), "In order to reject a friend request, it has to be pending first.");
+            Assert.ThrowsAsync<FriendRequestException>(() =>
+                userService.AcceptFriendRequest(new AcceptFriendRequestModel(userId, requestId)),
+                    "In order to reject a friend request, it has to be pending first.");
         }
 
         [Test]
@@ -146,7 +145,7 @@ namespace OChatApp.UnitTests
             var userService = new UserService(userRepositoryMock.Object);
 
             //Act
-            await userService.IgnoreFriendRequest(userId, requestId);
+            await userService.IgnoreFriendRequest(new IgnoreFriendRequestModel(userId, requestId));
 
             //Assert
             userRepositoryMock.Verify(x => x.SaveEntityAsync(user), Times.Once);
@@ -162,7 +161,7 @@ namespace OChatApp.UnitTests
             var userService = new UserService(userRepositoryMock.Object);
 
             //Act/Assert
-            Assert.ThrowsAsync<FriendRequestException>(() => userService.IgnoreFriendRequest(userId, requestId), "Request not found.");
+            Assert.ThrowsAsync<FriendRequestException>(() => userService.IgnoreFriendRequest(new IgnoreFriendRequestModel(userId, requestId)), "Request not found.");
         }
 
         [Test]
@@ -174,7 +173,7 @@ namespace OChatApp.UnitTests
             var userService = new UserService(userRepositoryMock.Object);
 
             //Act/Assert
-            Assert.ThrowsAsync<FriendRequestException>(() => userService.IgnoreFriendRequest(userId, requestId), "In order to ignore a friend request, it has to be pending first.");
+            Assert.ThrowsAsync<FriendRequestException>(() => userService.IgnoreFriendRequest(new IgnoreFriendRequestModel(userId, requestId)), "In order to ignore a friend request, it has to be pending first.");
         }
 
 
@@ -189,7 +188,7 @@ namespace OChatApp.UnitTests
             var userService = new UserService(userRepositoryMock.Object);
 
             //Act
-            await userService.RemoveFriend(userId, targetUserId);
+            await userService.RemoveFriend(new RemoveFriendModel(userId, targetUserId));
 
             //Assert
             userRepositoryMock.Verify(x => x.SaveEntityAsync(user), Times.Once);
