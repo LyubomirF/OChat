@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Design;
 using OChat.Domain;
 
 namespace OChat.Infrastructure.Persistance
@@ -83,6 +84,17 @@ namespace OChat.Infrastructure.Persistance
 
             builder.Entity<ChatTracker>()
                 .HasOne(ct => ct.Chat);
+        }
+
+        public class OChatContextFactory : IDesignTimeDbContextFactory<OChatContext>
+        {
+            public OChatContext CreateDbContext(string[] args)
+            {
+                var optionsBuilder = new DbContextOptionsBuilder<OChatContext>();
+                optionsBuilder.UseSqlServer("Server=DESKTOP-UQA2M17\\SQLEXPRESS;Database=OChatApp;Trusted_Connection=True;MultipleActiveResultSets=true;");
+
+                return new OChatContext(optionsBuilder.Options);
+            }
         }
     }
 }

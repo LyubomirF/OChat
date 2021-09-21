@@ -15,11 +15,9 @@ namespace OChat.WebAPI.Models
 
     public record SendMessage(Guid SenderId, Guid ChatId, String Message);
 
-    public record UpdateTimeLastMessageWasSeen(Guid UserId, Guid ChatId, DateTime TimeLastMessageWasSeen);
-
     public record IgnoreFriendRequest(Guid UserId, Guid RequestId);
 
     public record RemoveFriend(Guid UserId, Guid FriendId);
 
-    public record GetTimeLastMessageWasSeen(Guid UserId, Guid ChatId);
+    public record TimeLastMessageWasSeen(Guid UserId, Guid ChatId);
 }
