@@ -4,8 +4,6 @@ using OChat.Core.OChat.Services.InputModels;
 using OChat.Core.Services;
 using OChat.Core.Services.Exceptions;
 using OChat.Domain;
-using OChat.Infrastructure.Exceptions;
-using OChatApp.UnitTests.Helper;
 using OChatApp.UnitTests.Mocks;
 using System;
 using System.Linq;
@@ -25,199 +23,127 @@ namespace OChatApp.UnitTests
         }
 
         [Test]
-        [TestCaseSource(typeof(TestInputs), nameof(TestInputs.GetInputFor_GetUserFriends_ReturnsCollectionOfFriends))]
-        public async Task GetUserFriends_ReturnsCollectionOfFriends(Guid userId)
+        public async Task GetUserFriends_ReturnsCollectionOfFriends()
         {
-            //Arrange
-            var userRepositoryMock = _mockSetup.CreateMock_GetUserFriends(userId);
+            var userRepositoryMock = _mockSetup.CreateMock_GetUserFriends();
             var userService = new UserService(userRepositoryMock.Object);
-            var actual = Database.Users.SingleOrDefault(x => x.Id == userId).Friends;
 
-            //Act
-            var friends = await userService.GetUserFriends(userId);
+            var friends = await userService.GetUserFriends(It.IsAny<Guid>());
 
-            //Assert
-            var list = actual
-                .Zip(friends, 
-                (user1, user2) =>
-                user1.Username == user2.Username &&
-                user1.Id == user2.Id);
-
-            foreach (var item in list)
-                Assert.IsTrue(item);
+            Assert.IsTrue(friends.Count() > 0);
         }
 
         [Test]
-        [TestCaseSource(typeof(TestInputs), nameof(TestInputs.GetInputFor_GetUserFriends_ThrowsNotFoundException))]
-        public void GetUserFriends_ThrowsNotFoundException(Guid userId)
+        public void GetUserFriends_ThrowsEmptyCollectionException()
         {
-            //Arrage
-            var userRepositoryMock = _mockSetup.CreateMock_GetUserFriends(userId);
+            var userRepositoryMock = _mockSetup.CreateMock_GetUserFriends_ThrowsEmptyCollectionException();
             var userService = new UserService(userRepositoryMock.Object);
 
-            //Act/Assert
-            Assert.ThrowsAsync<NotFoundException>(() => userService.GetUserFriends(userId));
+            Assert.ThrowsAsync<EmptyCollectionException>(() => userService.GetUserFriends(It.IsAny<Guid>()), "User has no friends.");
         }
 
         [Test]
-        [TestCaseSource(typeof(TestInputs), nameof(TestInputs.GetInputFor_GetUserFriends_ThrowsEmptyCollectionException))]
-        public void GetUserFriends_ThrowsEmptyCollectionException(Guid userId)
+        public async Task SendFriendRequest_ValidCall()
         {
-            //Arrage
-            var userRepositoryMock = _mockSetup.CreateMock_GetUserFriends(userId);
+            var userRepositoryMock = _mockSetup.CreateMock_SendFriendRequest();
             var userService = new UserService(userRepositoryMock.Object);
+            var inputModel = new SendFriendRequestModel(It.IsAny<Guid>(), It.IsAny<Guid>());
 
-            //Act/Assert
-            Assert.ThrowsAsync<EmptyCollectionException>(() => userService.GetUserFriends(userId), "User has no friends.");
-        }
+            await userService.SendFriendRequest(inputModel);
 
-
-        [Test]
-        [TestCaseSource(typeof(TestInputs), nameof(TestInputs.GetInputFor_SendFriendRequest_ValidCall))]
-        public async Task SendFriendRequest_ValidCall(Guid userId, Guid targetUserId)
-        {
-            //Arrange
-            var userRepositoryMock = _mockSetup.CreateMock_SendFriendRequest(userId, targetUserId);
-            var targetUser = Database.Users.SingleOrDefault(x => x.Id == targetUserId);
-            var userService = new UserService(userRepositoryMock.Object);
-
-            //Act
-            await userService.SendFriendRequest(new SendFriendRequestModel(userId, targetUserId));
-
-            //Assert
-            userRepositoryMock.Verify(x => x.SaveEntityAsync(targetUser), Times.Once);
-            Assert.That(targetUser.FriendRequests.Count > 0);
+            userRepositoryMock.Verify(x => x.SaveEntityAsync(It.IsAny<User>()), Times.Once);
         }
 
         [Test]
-        [TestCaseSource(typeof(TestInputs), nameof(TestInputs.GetInputFor_AcceptFriendRequest_ValidCall))]
-        public async Task AcceptFriendRequest_ValidCall(Guid userId, Guid requestId, Guid fromUserId)
+        public async Task AcceptFriendRequest_ValidCall()
         {
-            //Arrange
-            var userRepositoryMock = _mockSetup.CreateMock_AcceptFriendRequest(userId, fromUserId);
-            var user = Database.Users.SingleOrDefault(x => x.Id == userId);
-            var fromUser = Database.Users.SingleOrDefault(x => x.Id == fromUserId);
+            
+            var userRepositoryMock = _mockSetup.CreateMock_AcceptFriendRequest();
             var userService = new UserService(userRepositoryMock.Object);
+            var inputModel = new AcceptFriendRequestModel(It.IsAny<Guid>(), Guid.Parse("5b1725f3-0aa3-4bbc-b9c9-df32ffcd6624"));
 
-            //Act
-            await userService.AcceptFriendRequest(new AcceptFriendRequestModel(userId, requestId));
+            await userService.AcceptFriendRequest(inputModel);
 
-            //Assert
-            userRepositoryMock.Verify(x => x.SaveEntityAsync(user), Times.Once);
-            userRepositoryMock.Verify(x => x.SaveEntityAsync(fromUser), Times.Once);
-            Assert.IsTrue(user.Friends.Any(x => x.Username == fromUser.Username));
-            Assert.IsTrue(fromUser.Friends.Any(x => x.Username == user.Username));
+            userRepositoryMock.Verify(x => x.SaveEntityAsync(It.IsAny<User>()), Times.Exactly(2));
         }
 
         [Test]
-        [TestCaseSource(typeof(TestInputs), nameof(TestInputs.GetIntputFor_AcceptFriendRequest_InvalidRequest_ThrowsNotFoundException))]
-        public void AcceptFriendRequest_InvalidRequest_ThrowsNotFoundException(Guid userId, Guid requestId, Guid fromUserId)
+        public void AcceptFriendRequest_InvalidRequest_ThrowsFriendRequestException_RequestNotFound()
         {
-            //Arrage
-            var userRepositoryMock = _mockSetup.CreateMock_AcceptFriendRequest(userId, fromUserId);
+            var userRepositoryMock = _mockSetup.CreateMock_AcceptFriendRequest_ThrowsRequestNotFound();
             var userService = new UserService(userRepositoryMock.Object);
+            var inputModel = new AcceptFriendRequestModel(It.IsAny<Guid>(), It.IsAny<Guid>());
 
-            //Act/Assert
-            Assert.ThrowsAsync<FriendRequestException>(() => userService.AcceptFriendRequest(new AcceptFriendRequestModel(userId, requestId)), "Request not found.");
+            Assert.ThrowsAsync<FriendRequestException>(() => userService.AcceptFriendRequest(inputModel), "Request not found.");
         }
 
         [Test]
-        [TestCaseSource(typeof(TestInputs), nameof(TestInputs.GetInputFor_AcceptFriendRequest_InvalidRequest_ThrowsFriendRequestException))]
-        public void AcceptFriendRequest_InvalidRequest_ThrowsFriendRequestException(Guid userId, Guid requestId, Guid fromUserId)
+        public void AcceptFriendRequest_ThrowsFriendRequestException_InvalidRequest()
         {
-            //Arrage
-            var userRepositoryMock = _mockSetup.CreateMock_AcceptFriendRequest(userId, fromUserId);
+            var userRepositoryMock = _mockSetup.CreateMock_AcceptFriendRequest_ThrowsInvalidRequest();
             var userService = new UserService(userRepositoryMock.Object);
+            var inputModel = new AcceptFriendRequestModel(It.IsAny<Guid>(), It.IsAny<Guid>());
 
-            //Act/Assert
             Assert.ThrowsAsync<FriendRequestException>(() =>
-                userService.AcceptFriendRequest(new AcceptFriendRequestModel(userId, requestId)),
+                userService.AcceptFriendRequest(inputModel),
                     "In order to reject a friend request, it has to be pending first.");
         }
 
         [Test]
-        [TestCaseSource(typeof(TestInputs), nameof(TestInputs.GetInputFor_IgnoreFriendRequest_ValidCall))]
-        public async Task IgnoreFriendRequest_ValidCall(Guid userId, Guid requestId)
+        public async Task IgnoreFriendRequest_ValidCall()
         {
-            //Arrange
-            var userRepositoryMock = _mockSetup.CreateMock_IgnoreFriendRequest(userId);
-            var user = Database.Users.SingleOrDefault(x => x.Id == userId);
+            var userRepositoryMock = _mockSetup.CreateMock_IgnoreFriendRequest();
             var userService = new UserService(userRepositoryMock.Object);
+            var inputModel = new IgnoreFriendRequestModel(It.IsAny<Guid>(), Guid.Parse("6a94057f-37ac-4ab9-891f-90cd319a5975"));
 
-            //Act
-            await userService.IgnoreFriendRequest(new IgnoreFriendRequestModel(userId, requestId));
+            await userService.IgnoreFriendRequest(inputModel);
 
-            //Assert
-            userRepositoryMock.Verify(x => x.SaveEntityAsync(user), Times.Once);
-            Assert.IsTrue(user.FriendRequests.SingleOrDefault(x => x.Id == requestId).Status == FriendRequestStatus.Ignored);
+            userRepositoryMock.Verify(x => x.SaveEntityAsync(It.IsAny<User>()), Times.Once);
         }
 
         [Test]
-        [TestCaseSource(typeof(TestInputs), nameof(TestInputs.GetInputFor_IgnoreFriendRequest_InvalidRequest_ThrowsNotFoundException))]
-        public void IgnoreFriendRequest_InvalidRequest_ThrowsNotFoundException(Guid userId, Guid requestId)
+        public void IgnoreFriendRequest_ThrowsFriendRequestException_RequestNotFound()
         {
-            //Arrage
-            var userRepositoryMock = _mockSetup.CreateMock_IgnoreFriendRequest(userId);
+            var userRepositoryMock = _mockSetup.CreateMock_IgnoreFriendRequest_ThrowsFriendRequestException_RequestNotFound();
             var userService = new UserService(userRepositoryMock.Object);
+            var inputModel = new IgnoreFriendRequestModel(It.IsAny<Guid>(), Guid.Parse("6a94057f-37ac-4ab9-891f-90cd319a5975"));
 
-            //Act/Assert
-            Assert.ThrowsAsync<FriendRequestException>(() => userService.IgnoreFriendRequest(new IgnoreFriendRequestModel(userId, requestId)), "Request not found.");
+            Assert.ThrowsAsync<FriendRequestException>(() => userService.IgnoreFriendRequest(inputModel), "Request not found.");
         }
 
         [Test]
-        [TestCaseSource(typeof(TestInputs), nameof(TestInputs.GetInputFor_IgnoreFriendRequest_InvalidRequest_ThrowsFriendRequestException))]
-        public void IgnoreFriendRequest_InvalidRequest_ThrowsFriendRequestException(Guid userId, Guid requestId)
+        public void IgnoreFriendRequest_ThrowsFriendRequestException_InvalidRequest()
         {
-            //Arrage
-            var userRepositoryMock = _mockSetup.CreateMock_IgnoreFriendRequest(userId);
+            var userRepositoryMock = _mockSetup.CreateMock_IgnoreFriendRequest_ThrowsFriendRequestException_InvalidRequest();
             var userService = new UserService(userRepositoryMock.Object);
+            var inputModel = new IgnoreFriendRequestModel(It.IsAny<Guid>(), Guid.Parse("6a94057f-37ac-4ab9-891f-90cd319a5975"));
 
-            //Act/Assert
-            Assert.ThrowsAsync<FriendRequestException>(() => userService.IgnoreFriendRequest(new IgnoreFriendRequestModel(userId, requestId)), "In order to ignore a friend request, it has to be pending first.");
-        }
-
-
-        [Test]
-        [TestCaseSource(typeof(TestInputs), nameof(TestInputs.GetInputFor_RemoveFriend_ValidCall))]
-        public async Task RemoveFriend_ValidCall(Guid userId, Guid targetUserId)
-        {
-            //Arrage
-            var userRepositoryMock = _mockSetup.CreateMock_RemoveFriend(userId, targetUserId);
-            var user = Database.Users.SingleOrDefault(x => x.Id == userId);
-            var targetUser = Database.Users.SingleOrDefault(x => x.Id == targetUserId);
-            var userService = new UserService(userRepositoryMock.Object);
-
-            //Act
-            await userService.RemoveFriend(new RemoveFriendModel(userId, targetUserId));
-
-            //Assert
-            userRepositoryMock.Verify(x => x.SaveEntityAsync(user), Times.Once);
-            userRepositoryMock.Verify(x => x.SaveEntityAsync(targetUser), Times.Once);
-            Assert.IsTrue(user.Friends.Count == 1);
-            Assert.IsTrue(targetUser.Friends.Count == 1);
+            Assert.ThrowsAsync<FriendRequestException>(
+                () => userService.IgnoreFriendRequest(inputModel), 
+                "In order to ignore a friend request, it has to be pending first.");
         }
 
         [Test]
-        [TestCaseSource(typeof(TestInputs), nameof(TestInputs.GetInputFor_GetPendingRequests_ValidCall))]
-        public async Task GetPendingRequests_ValidCall(Guid userId)
+        public async Task RemoveFriend_ValidCall()
         {
-            //Arrange
-            var userRepositoryMock = _mockSetup.CreateMock_GetPendingRequests(userId);
+            var userRepositoryMock = _mockSetup.CreateMock_RemoveFriend();
             var userService = new UserService(userRepositoryMock.Object);
-            var user = Database.Users.SingleOrDefault(x => x.Id == userId);
+            var inputModel = new RemoveFriendModel(Guid.Parse("d23e4848-68b6-4af6-9b2d-848a462c5ae7"), Guid.Parse("fefa61db-1dfe-4d10-9be2-37dd6db78998"));
 
-            //Act
-            var requests = await userService.GetPendingRequests(userId);
+            await userService.RemoveFriend(inputModel);
 
-            //Assert
-            var list = requests.Zip(
-                 user.FriendRequests,
-                 (request1, request2) =>
-                 request1.Id == request2.Id &&
-                 request1.Status == request2.Status);
+            userRepositoryMock.Verify(x => x.SaveEntityAsync(It.IsAny<User>()), Times.Exactly(2));
+        }
 
-            foreach (var item in list)
-                Assert.IsTrue(item);
+        [Test]
+        public async Task GetPendingRequests_ValidCall()
+        {  
+            var userRepositoryMock = _mockSetup.CreateMock_GetPendingRequests();
+            var userService = new UserService(userRepositoryMock.Object);
+
+            var requests = await userService.GetPendingRequests(It.IsAny<Guid>());
+
+            Assert.IsTrue(requests.Count() > 0);
         }
     }
 }

@@ -60,10 +60,10 @@ namespace OChat.Core.Services
             if (request == null)
                 throw new FriendRequestException("Request not found.");
 
-            var fromUser = await _userRepository.GetUserWithFriendsAsync(request.From.Id);
-
             if (request.Status != FriendRequestStatus.Pending)
                 throw new FriendRequestException("In order to accept a friend request, it has to be pending first.");
+
+            var fromUser = await _userRepository.GetUserWithFriendsAsync(request.From.Id);
 
             request.Status = FriendRequestStatus.Accepted;
 
